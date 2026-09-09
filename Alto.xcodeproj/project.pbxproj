@@ -1,0 +1,546 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		01CC0559982217F8CAEFE4F7 /* AltoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B35D89F9EC3193C356B9492 /* AltoApp.swift */; };
+		233FDB9C87E163ED2A5E9D4E /* catalog.json in Resources */ = {isa = PBXBuildFile; fileRef = 3A6BCB4D4079B1917A88C9C6 /* catalog.json */; };
+		3E715EA75D58FE064EAB7A8A /* SpeechRuntimeCheck.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8BD88138C6F87D25B34A966 /* SpeechRuntimeCheck.swift */; };
+		8CD5B47818CC37F392B2C78E /* KokoroSwift in Frameworks */ = {isa = PBXBuildFile; productRef = DFF1D1221DF3C686A82DDF5C /* KokoroSwift */; };
+		AC1BD6ACE81928D547E79421 /* Notices in Resources */ = {isa = PBXBuildFile; fileRef = A0AD03502BCA175A509B429A /* Notices */; };
+		AEFB92117F912EA4172B9EEF /* AltoUI in Frameworks */ = {isa = PBXBuildFile; productRef = DCDBAAD7F1257F5251865EF3 /* AltoUI */; };
+		C8182F69344D9D6D8CC4927C /* kokoro-schema.json in Resources */ = {isa = PBXBuildFile; fileRef = 583DF8BFC6EE32227836C769 /* kokoro-schema.json */; };
+		D12E3410BFBA470671B973DE /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8E7575F5BDEA8484E7A4ED /* main.swift */; };
+		D6F6567F87868CA577A94C1F /* MLX in Frameworks */ = {isa = PBXBuildFile; productRef = F02995E219BBF779DB4A9D9A /* MLX */; };
+		E041AC231FB09A388BEC666E /* THIRD_PARTY_NOTICES.md in Resources */ = {isa = PBXBuildFile; fileRef = D3EC1B83EE1081DD397D5A48 /* THIRD_PARTY_NOTICES.md */; };
+		E99BB9D9C36E3863AC59BF96 /* AltoCore in Frameworks */ = {isa = PBXBuildFile; productRef = 509F883F6CD96AACA45C4724 /* AltoCore */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		330AE83E0600F8327F71A375 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4E1F7E4AA145BB7597802A40 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 6BAA80E249A8446C6A3E1282;
+			remoteInfo = AltoSpeechWorker;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		0B35D89F9EC3193C356B9492 /* AltoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AltoApp.swift; sourceTree = "<group>"; };
+		3A6BCB4D4079B1917A88C9C6 /* catalog.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = catalog.json; sourceTree = "<group>"; };
+		583DF8BFC6EE32227836C769 /* kokoro-schema.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "kokoro-schema.json"; sourceTree = "<group>"; };
+		69E3CE62CE8B2D8289CD0E8C /* Alto.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Alto.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A0AD03502BCA175A509B429A /* Notices */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Notices; path = Resources/Notices; sourceTree = SOURCE_ROOT; };
+		A2DAC352C7CCDD32EB1D4C60 /* alto */ = {isa = PBXFileReference; lastKnownFileType = folder; name = alto; path = .; sourceTree = SOURCE_ROOT; };
+		BE5ACF9D4BC611F6AC8B64BD /* AltoSpeechWorker */ = {isa = PBXFileReference; includeInIndex = 0; path = AltoSpeechWorker; sourceTree = BUILT_PRODUCTS_DIR; };
+		D3EC1B83EE1081DD397D5A48 /* THIRD_PARTY_NOTICES.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = THIRD_PARTY_NOTICES.md; sourceTree = "<group>"; };
+		EF8E7575F5BDEA8484E7A4ED /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		F8BD88138C6F87D25B34A966 /* SpeechRuntimeCheck.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechRuntimeCheck.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		39AEDFC4B089FE26BB39FB31 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E99BB9D9C36E3863AC59BF96 /* AltoCore in Frameworks */,
+				8CD5B47818CC37F392B2C78E /* KokoroSwift in Frameworks */,
+				D6F6567F87868CA577A94C1F /* MLX in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DEEB5D5FF62E4622752B11CC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AEFB92117F912EA4172B9EEF /* AltoUI in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		353F27DB64CA13A9FD676930 /* AltoSpeechWorker */ = {
+			isa = PBXGroup;
+			children = (
+				EF8E7575F5BDEA8484E7A4ED /* main.swift */,
+				F8BD88138C6F87D25B34A966 /* SpeechRuntimeCheck.swift */,
+			);
+			name = AltoSpeechWorker;
+			path = Sources/AltoSpeechWorker;
+			sourceTree = "<group>";
+		};
+		3D0665664E272551C7730264 = {
+			isa = PBXGroup;
+			children = (
+				A0AD03502BCA175A509B429A /* Notices */,
+				4EA290D4339AEA0DB80BFD48 /* Alto */,
+				353F27DB64CA13A9FD676930 /* AltoSpeechWorker */,
+				96A07C766A156085B43C3844 /* Packages */,
+				D92FA1306DF2A971174DDEF2 /* Resources */,
+				E720051FE26B8654A47C3F2C /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		4EA290D4339AEA0DB80BFD48 /* Alto */ = {
+			isa = PBXGroup;
+			children = (
+				0B35D89F9EC3193C356B9492 /* AltoApp.swift */,
+			);
+			name = Alto;
+			path = Sources/Alto;
+			sourceTree = "<group>";
+		};
+		96A07C766A156085B43C3844 /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				A2DAC352C7CCDD32EB1D4C60 /* alto */,
+			);
+			name = Packages;
+			sourceTree = "<group>";
+		};
+		D92FA1306DF2A971174DDEF2 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				3A6BCB4D4079B1917A88C9C6 /* catalog.json */,
+				583DF8BFC6EE32227836C769 /* kokoro-schema.json */,
+				D3EC1B83EE1081DD397D5A48 /* THIRD_PARTY_NOTICES.md */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		E720051FE26B8654A47C3F2C /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				69E3CE62CE8B2D8289CD0E8C /* Alto.app */,
+				BE5ACF9D4BC611F6AC8B64BD /* AltoSpeechWorker */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		6BAA80E249A8446C6A3E1282 /* AltoSpeechWorker */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 080B06870F67B9B11E9212E4 /* Build configuration list for PBXNativeTarget "AltoSpeechWorker" */;
+			buildPhases = (
+				782C729EBA047B07EDE1707A /* Sources */,
+				39AEDFC4B089FE26BB39FB31 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = AltoSpeechWorker;
+			packageProductDependencies = (
+				509F883F6CD96AACA45C4724 /* AltoCore */,
+				DFF1D1221DF3C686A82DDF5C /* KokoroSwift */,
+				F02995E219BBF779DB4A9D9A /* MLX */,
+			);
+			productName = AltoSpeechWorker;
+			productReference = BE5ACF9D4BC611F6AC8B64BD /* AltoSpeechWorker */;
+			productType = "com.apple.product-type.tool";
+		};
+		F9D257D984F398EE58ADF9BD /* Alto */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7FF721FAFD4B94CAF8BC1938 /* Build configuration list for PBXNativeTarget "Alto" */;
+			buildPhases = (
+				0E0200DECE131CAA0C2422FC /* Sources */,
+				9AD0D644139B57123FF4D7FF /* Resources */,
+				DEEB5D5FF62E4622752B11CC /* Frameworks */,
+				C1E61782775887DF5B0EC0D7 /* Embed native speech worker */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				05046EE11D87D6C087E2FEA5 /* PBXTargetDependency */,
+			);
+			name = Alto;
+			packageProductDependencies = (
+				DCDBAAD7F1257F5251865EF3 /* AltoUI */,
+			);
+			productName = Alto;
+			productReference = 69E3CE62CE8B2D8289CD0E8C /* Alto.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		4E1F7E4AA145BB7597802A40 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					6BAA80E249A8446C6A3E1282 = {
+						ProvisioningStyle = Manual;
+					};
+					F9D257D984F398EE58ADF9BD = {
+						ProvisioningStyle = Manual;
+					};
+				};
+			};
+			buildConfigurationList = D6FE4FAEBC80143B2E983AF9 /* Build configuration list for PBXProject "Alto" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 3D0665664E272551C7730264;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				7FAD6CCBD8D327DCA211D7EF /* XCRemoteSwiftPackageReference "kokoro-ios" */,
+				A79133787D48464927F441FB /* XCRemoteSwiftPackageReference "mlx-swift" */,
+				7384E4B0B70D2C5ECDB5B5D5 /* XCLocalSwiftPackageReference "." */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = E720051FE26B8654A47C3F2C /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				F9D257D984F398EE58ADF9BD /* Alto */,
+				6BAA80E249A8446C6A3E1282 /* AltoSpeechWorker */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		9AD0D644139B57123FF4D7FF /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AC1BD6ACE81928D547E79421 /* Notices in Resources */,
+				E041AC231FB09A388BEC666E /* THIRD_PARTY_NOTICES.md in Resources */,
+				233FDB9C87E163ED2A5E9D4E /* catalog.json in Resources */,
+				C8182F69344D9D6D8CC4927C /* kokoro-schema.json in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		C1E61782775887DF5B0EC0D7 /* Embed native speech worker */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Embed native speech worker";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "swift \"$SRCROOT/scripts/make-icon.swift\" \"$DERIVED_FILE_DIR/Alto.icns\"\ncp \"$DERIVED_FILE_DIR/Alto.icns\" \"$TARGET_BUILD_DIR/$CONTENTS_FOLDER_PATH/Resources/Alto.icns\"\nmkdir -p \"$TARGET_BUILD_DIR/$CONTENTS_FOLDER_PATH/Helpers\"\ncp \"$BUILT_PRODUCTS_DIR/AltoSpeechWorker\" \"$TARGET_BUILD_DIR/$CONTENTS_FOLDER_PATH/Helpers/AltoSpeechWorker\"\nmkdir -p \"$TARGET_BUILD_DIR/$CONTENTS_FOLDER_PATH/Frameworks\"\nfor framework in \"$BUILT_PRODUCTS_DIR/PackageFrameworks/\"*.framework; do\n  ditto \"$framework\" \"$TARGET_BUILD_DIR/$CONTENTS_FOLDER_PATH/Frameworks/$(basename \"$framework\")\"\ndone\nfor resource in \"$BUILT_PRODUCTS_DIR/\"*.bundle; do\n  ditto \"$resource\" \"$TARGET_BUILD_DIR/$CONTENTS_FOLDER_PATH/Resources/$(basename \"$resource\")\"\n  ln -sfn \"../Resources/$(basename \"$resource\")\" \"$TARGET_BUILD_DIR/$CONTENTS_FOLDER_PATH/Helpers/$(basename \"$resource\")\"\ndone\n# MLX's dynamic C++ framework locates shaders next to its binary.\ncp \"$BUILT_PRODUCTS_DIR/mlx-swift_Cmlx.bundle/Contents/Resources/default.metallib\" \"$TARGET_BUILD_DIR/$CONTENTS_FOLDER_PATH/Frameworks/Cmlx.framework/Versions/A/Resources/default.metallib\"\nif [ \"$CODE_SIGNING_ALLOWED\" != \"NO\" ]; then\n  for framework in \"$TARGET_BUILD_DIR/$CONTENTS_FOLDER_PATH/Frameworks/\"*.framework; do\n    codesign --force --sign \"${EXPANDED_CODE_SIGN_IDENTITY:--}\" \"$framework\"\n  done\n  codesign --force --sign \"${EXPANDED_CODE_SIGN_IDENTITY:--}\" \"$TARGET_BUILD_DIR/$CONTENTS_FOLDER_PATH/Helpers/AltoSpeechWorker\"\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		0E0200DECE131CAA0C2422FC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				01CC0559982217F8CAEFE4F7 /* AltoApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		782C729EBA047B07EDE1707A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3E715EA75D58FE064EAB7A8A /* SpeechRuntimeCheck.swift in Sources */,
+				D12E3410BFBA470671B973DE /* main.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		05046EE11D87D6C087E2FEA5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 6BAA80E249A8446C6A3E1282 /* AltoSpeechWorker */;
+			targetProxy = 330AE83E0600F8327F71A375 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		54772B2DF9B33FA2440FD86C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @executable_path/Frameworks";
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		694CC6C05E1DAE2F4B56A13B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @executable_path/Frameworks";
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		8CA89236FE57CF204FC6EB47 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = arm64;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		A490456A0CAF45C22F3FB5A7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = arm64;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		AB0ACF4024127EE0E57D2566 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = NO;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Alto;
+				INFOPLIST_KEY_CFBundleIconFile = Alto.icns;
+				INFOPLIST_KEY_LSUIElement = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = software.petit.alto;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		D429C31304713495C0C9E44C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = NO;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Alto;
+				INFOPLIST_KEY_CFBundleIconFile = Alto.icns;
+				INFOPLIST_KEY_LSUIElement = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = software.petit.alto;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		080B06870F67B9B11E9212E4 /* Build configuration list for PBXNativeTarget "AltoSpeechWorker" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				54772B2DF9B33FA2440FD86C /* Debug */,
+				694CC6C05E1DAE2F4B56A13B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		7FF721FAFD4B94CAF8BC1938 /* Build configuration list for PBXNativeTarget "Alto" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D429C31304713495C0C9E44C /* Debug */,
+				AB0ACF4024127EE0E57D2566 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		D6FE4FAEBC80143B2E983AF9 /* Build configuration list for PBXProject "Alto" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A490456A0CAF45C22F3FB5A7 /* Debug */,
+				8CA89236FE57CF204FC6EB47 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		7384E4B0B70D2C5ECDB5B5D5 /* XCLocalSwiftPackageReference "." */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = .;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		7FAD6CCBD8D327DCA211D7EF /* XCRemoteSwiftPackageReference "kokoro-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/mlalma/kokoro-ios";
+			requirement = {
+				kind = revision;
+				revision = 4d6d1d8ff8cd012014180c9cd4cf0151e7682354;
+			};
+		};
+		A79133787D48464927F441FB /* XCRemoteSwiftPackageReference "mlx-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ml-explore/mlx-swift";
+			requirement = {
+				kind = exactVersion;
+				version = 0.30.2;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		509F883F6CD96AACA45C4724 /* AltoCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = AltoCore;
+		};
+		DCDBAAD7F1257F5251865EF3 /* AltoUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = AltoUI;
+		};
+		DFF1D1221DF3C686A82DDF5C /* KokoroSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7FAD6CCBD8D327DCA211D7EF /* XCRemoteSwiftPackageReference "kokoro-ios" */;
+			productName = KokoroSwift;
+		};
+		F02995E219BBF779DB4A9D9A /* MLX */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A79133787D48464927F441FB /* XCRemoteSwiftPackageReference "mlx-swift" */;
+			productName = MLX;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 4E1F7E4AA145BB7597802A40 /* Project object */;
+}

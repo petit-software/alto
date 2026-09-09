@@ -1,0 +1,9 @@
+.build/
+build/
+dist/
+.DS_Store
+*.xcuserstate
+xcuserdata/
+.swiftpm/
+.ultra/chats/
+.ultra/context.json

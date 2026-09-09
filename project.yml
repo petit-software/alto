@@ -1,0 +1,93 @@
+name: Alto
+options:
+  deploymentTarget:
+    macOS: '15.0'
+settings:
+  base:
+    SWIFT_VERSION: '5.0'
+    MACOSX_DEPLOYMENT_TARGET: '15.0'
+    ARCHS: arm64
+    CODE_SIGN_IDENTITY: '-'
+    CODE_SIGN_STYLE: Manual
+targets:
+  Alto:
+    type: application
+    platform: macOS
+    sources:
+      - Sources/Alto
+      - path: Resources
+        excludes: [Notices]
+        buildPhase: resources
+      - path: Resources/Notices
+        type: folder
+        buildPhase: resources
+    dependencies:
+      - package: AltoPackage
+        product: AltoUI
+      - target: AltoSpeechWorker
+        embed: false
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: software.petit.alto
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_LSUIElement: YES
+        INFOPLIST_KEY_CFBundleDisplayName: Alto
+        INFOPLIST_KEY_CFBundleIconFile: Alto.icns
+        MARKETING_VERSION: '0.1.0'
+        CURRENT_PROJECT_VERSION: '1'
+        ENABLE_APP_SANDBOX: NO
+        ENABLE_HARDENED_RUNTIME: YES
+    postBuildScripts:
+      - name: Embed native speech worker
+        script: |
+          swift "$SRCROOT/scripts/make-icon.swift" "$DERIVED_FILE_DIR/Alto.icns"
+          cp "$DERIVED_FILE_DIR/Alto.icns" "$TARGET_BUILD_DIR/$CONTENTS_FOLDER_PATH/Resources/Alto.icns"
+          mkdir -p "$TARGET_BUILD_DIR/$CONTENTS_FOLDER_PATH/Helpers"
+          cp "$BUILT_PRODUCTS_DIR/AltoSpeechWorker" "$TARGET_BUILD_DIR/$CONTENTS_FOLDER_PATH/Helpers/AltoSpeechWorker"
+          mkdir -p "$TARGET_BUILD_DIR/$CONTENTS_FOLDER_PATH/Frameworks"
+          for framework in "$BUILT_PRODUCTS_DIR/PackageFrameworks/"*.framework; do
+            ditto "$framework" "$TARGET_BUILD_DIR/$CONTENTS_FOLDER_PATH/Frameworks/$(basename "$framework")"
+          done
+          for resource in "$BUILT_PRODUCTS_DIR/"*.bundle; do
+            ditto "$resource" "$TARGET_BUILD_DIR/$CONTENTS_FOLDER_PATH/Resources/$(basename "$resource")"
+            ln -sfn "../Resources/$(basename "$resource")" "$TARGET_BUILD_DIR/$CONTENTS_FOLDER_PATH/Helpers/$(basename "$resource")"
+          done
+          # MLX's dynamic C++ framework locates shaders next to its binary.
+          cp "$BUILT_PRODUCTS_DIR/mlx-swift_Cmlx.bundle/Contents/Resources/default.metallib" "$TARGET_BUILD_DIR/$CONTENTS_FOLDER_PATH/Frameworks/Cmlx.framework/Versions/A/Resources/default.metallib"
+          if [ "$CODE_SIGNING_ALLOWED" != "NO" ]; then
+            for framework in "$TARGET_BUILD_DIR/$CONTENTS_FOLDER_PATH/Frameworks/"*.framework; do
+              codesign --force --sign "${EXPANDED_CODE_SIGN_IDENTITY:--}" "$framework"
+            done
+            codesign --force --sign "${EXPANDED_CODE_SIGN_IDENTITY:--}" "$TARGET_BUILD_DIR/$CONTENTS_FOLDER_PATH/Helpers/AltoSpeechWorker"
+          fi
+        basedOnDependencyAnalysis: false
+  AltoSpeechWorker:
+    type: tool
+    platform: macOS
+    sources: [Sources/AltoSpeechWorker]
+    settings:
+      base:
+        LD_RUNPATH_SEARCH_PATHS: '$(inherited) @executable_path/../Frameworks @executable_path/Frameworks'
+    dependencies:
+      - package: AltoPackage
+        product: AltoCore
+      - package: Kokoro
+        product: KokoroSwift
+      - package: MLX
+        product: MLX
+packages:
+  AltoPackage:
+    path: .
+  Kokoro:
+    url: https://github.com/mlalma/kokoro-ios
+    revision: 4d6d1d8ff8cd012014180c9cd4cf0151e7682354
+  MLX:
+    url: https://github.com/ml-explore/mlx-swift
+    exactVersion: 0.30.2
+schemes:
+  Alto:
+    build:
+      targets:
+        Alto: all
+    run:
+      config: Debug

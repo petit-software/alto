@@ -1,0 +1,112 @@
+[
+  {
+    "id": "kokoro-standard",
+    "name": "Kokoro",
+    "summary": "The original voice. Full precision, beautifully clear.",
+    "family": "kokoro-v1",
+    "repository": "mlx-community/Kokoro-82M-bf16",
+    "revision": "a71e4d38b236d968966a2002c4c895dbd12b1c3c",
+    "license": "apache-2.0",
+    "languages": [
+      "English (US)",
+      "English (UK)"
+    ],
+    "files": [
+      {
+        "path": "README.md",
+        "bytes": 536,
+        "url": "https://huggingface.co/mlx-community/Kokoro-82M-bf16/resolve/a71e4d38b236d968966a2002c4c895dbd12b1c3c/README.md"
+      },
+      {
+        "path": "config.json",
+        "bytes": 2351,
+        "url": "https://huggingface.co/mlx-community/Kokoro-82M-bf16/resolve/a71e4d38b236d968966a2002c4c895dbd12b1c3c/config.json"
+      },
+      {
+        "path": "kokoro-v1_0.safetensors",
+        "bytes": 327115152,
+        "sha256": "4e9ecdf03b8b6cf906070390237feda473dc13327cb8d56a43deaa374c02acd8",
+        "url": "https://huggingface.co/mlx-community/Kokoro-82M-bf16/resolve/a71e4d38b236d968966a2002c4c895dbd12b1c3c/kokoro-v1_0.safetensors"
+      },
+      {
+        "path": "voices/af_heart.safetensors",
+        "bytes": 522320,
+        "sha256": "2c1c733b0e6576c810e268d3e440c21dea4e0f0131a3ba4cfc98d7fe6136d094",
+        "url": "https://huggingface.co/mlx-community/Kokoro-82M-bf16/resolve/a71e4d38b236d968966a2002c4c895dbd12b1c3c/voices/af_heart.safetensors"
+      },
+      {
+        "path": "voices/am_michael.safetensors",
+        "bytes": 522320,
+        "sha256": "3940147ded35deba0bb52e8132f89b719298e0520258c34584358aa5a24da2ea",
+        "url": "https://huggingface.co/mlx-community/Kokoro-82M-bf16/resolve/a71e4d38b236d968966a2002c4c895dbd12b1c3c/voices/am_michael.safetensors"
+      },
+      {
+        "path": "voices/bf_emma.safetensors",
+        "bytes": 522320,
+        "sha256": "8878a75a6661305849eeb1d6293a7177250193616e161b4c3100636434dfe69f",
+        "url": "https://huggingface.co/mlx-community/Kokoro-82M-bf16/resolve/a71e4d38b236d968966a2002c4c895dbd12b1c3c/voices/bf_emma.safetensors"
+      },
+      {
+        "path": "voices/bm_george.safetensors",
+        "bytes": 522320,
+        "sha256": "a3d9b8995cbbe5536f954b6be2a0f1f312f077118ba0d4d2178fc41dc8306672",
+        "url": "https://huggingface.co/mlx-community/Kokoro-82M-bf16/resolve/a71e4d38b236d968966a2002c4c895dbd12b1c3c/voices/bm_george.safetensors"
+      }
+    ]
+  },
+  {
+    "id": "kokoro-compact",
+    "name": "Kokoro Compact",
+    "summary": "A smaller download. Half-precision weights, prepared locally for the same Swift runtime.",
+    "family": "kokoro-v1",
+    "repository": "erildo/Kokoro-82M-fp16-Swift",
+    "revision": "1232dd6943839fc037378b8e5312600fe75ce29c",
+    "license": "apache-2.0",
+    "languages": [
+      "English (US)",
+      "English (UK)"
+    ],
+    "files": [
+      {
+        "path": "README.md",
+        "bytes": 28,
+        "url": "https://huggingface.co/erildo/Kokoro-82M-fp16-Swift/resolve/1232dd6943839fc037378b8e5312600fe75ce29c/README.md"
+      },
+      {
+        "path": "config.json",
+        "bytes": 2351,
+        "url": "https://huggingface.co/erildo/Kokoro-82M-fp16-Swift/resolve/1232dd6943839fc037378b8e5312600fe75ce29c/config.json"
+      },
+      {
+        "path": "kokoro-v1_0-fp16.safetensors",
+        "bytes": 162406594,
+        "sha256": "11365de732c9d263ff2741215bf4d3f9588f1c19dea262ae7e2c2a8e06de0230",
+        "url": "https://huggingface.co/erildo/Kokoro-82M-fp16-Swift/resolve/1232dd6943839fc037378b8e5312600fe75ce29c/kokoro-v1_0-fp16.safetensors"
+      },
+      {
+        "path": "voices/af_heart.safetensors",
+        "bytes": 522320,
+        "sha256": "2c1c733b0e6576c810e268d3e440c21dea4e0f0131a3ba4cfc98d7fe6136d094",
+        "url": "https://huggingface.co/mlx-community/Kokoro-82M-bf16/resolve/a71e4d38b236d968966a2002c4c895dbd12b1c3c/voices/af_heart.safetensors"
+      },
+      {
+        "path": "voices/am_michael.safetensors",
+        "bytes": 522320,
+        "sha256": "3940147ded35deba0bb52e8132f89b719298e0520258c34584358aa5a24da2ea",
+        "url": "https://huggingface.co/mlx-community/Kokoro-82M-bf16/resolve/a71e4d38b236d968966a2002c4c895dbd12b1c3c/voices/am_michael.safetensors"
+      },
+      {
+        "path": "voices/bf_emma.safetensors",
+        "bytes": 522320,
+        "sha256": "8878a75a6661305849eeb1d6293a7177250193616e161b4c3100636434dfe69f",
+        "url": "https://huggingface.co/mlx-community/Kokoro-82M-bf16/resolve/a71e4d38b236d968966a2002c4c895dbd12b1c3c/voices/bf_emma.safetensors"
+      },
+      {
+        "path": "voices/bm_george.safetensors",
+        "bytes": 522320,
+        "sha256": "a3d9b8995cbbe5536f954b6be2a0f1f312f077118ba0d4d2178fc41dc8306672",
+        "url": "https://huggingface.co/mlx-community/Kokoro-82M-bf16/resolve/a71e4d38b236d968966a2002c4c895dbd12b1c3c/voices/bm_george.safetensors"
+      }
+    ]
+  }
+]
