@@ -36,6 +36,15 @@ final class AppModel {
             if hasReading { showPlayer?() }
         }
     }
+    var playerPosition: PlayerPosition {
+        didSet {
+            defaults.set(playerPosition.rawValue, forKey: "playerPlacement")
+            if playerPosition == .hidden { hidePlayer?() }
+            else if hasReading { showPlayer?() }
+        }
+    }
+    var playerOpacity: Double { didSet { defaults.set(playerOpacity, forKey: "playerOpacity") } }
+    var playerClearGlass: Bool { didSet { defaults.set(playerClearGlass, forKey: "playerClearGlass") } }
     var clipboardFallback: Bool { didSet { defaults.set(clipboardFallback, forKey: "clipboardFallback") } }
     var shortcutLabel: String { didSet { defaults.set(shortcutLabel, forKey: "shortcutLabel") } }
     private(set) var shortcutEnabled: Bool
@@ -87,6 +96,9 @@ final class AppModel {
         voicePath = defaults.string(forKey: "voice") ?? "voices/af_heart.safetensors"
         rate = defaults.object(forKey: "rate") == nil ? 1 : min(2, max(0.5, defaults.double(forKey: "rate")))
         playerSize = PlayerSize(rawValue: defaults.double(forKey: "playerSize")) ?? .standard
+        playerPosition = PlayerPosition(rawValue: defaults.string(forKey: "playerPlacement") ?? "") ?? .bottomCenter
+        playerOpacity = defaults.object(forKey: "playerOpacity") == nil ? 0.45 : min(1, max(0, defaults.double(forKey: "playerOpacity")))
+        playerClearGlass = defaults.bool(forKey: "playerClearGlass")
         clipboardFallback = defaults.object(forKey: "clipboardFallback") == nil ? true : defaults.bool(forKey: "clipboardFallback")
         shortcutLabel = defaults.string(forKey: "shortcutLabel") ?? "⌥ Space"
         shortcutEnabled = defaults.object(forKey: "shortcutEnabled") as? Bool ?? true

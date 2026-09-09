@@ -19,14 +19,13 @@ struct TextReaderView: View {
                 .padding(.horizontal, 28).padding(.top, 24)
         }
         .frame(minWidth: 480, minHeight: 480)
-        .background(.white)
+        .background(Color(nsColor: .textBackgroundColor))
         .overlay(alignment: .bottom) {
             PlayerView(app: app, shown: true, embedded: true, onPaste: { pasteRequest += 1 })
                 .padding(.bottom, 8)
         }
         .clipShape(RoundedRectangle(cornerRadius: 32))
-        .overlay(RoundedRectangle(cornerRadius: 32).strokeBorder(.black.opacity(0.18), lineWidth: 0.5))
-        .environment(\.colorScheme, .light)
+        .overlay(RoundedRectangle(cornerRadius: 32).strokeBorder(.primary.opacity(0.18), lineWidth: 0.5))
         .onExitCommand { app.stopAndDismiss() }
     }
 }

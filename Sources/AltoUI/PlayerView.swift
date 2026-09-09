@@ -11,16 +11,15 @@ struct PlayerView: View {
     var onPaste: (() -> Void)? = nil
     @Environment(\.colorScheme) private var scheme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     private var dark: Bool { scheme == .dark }
     private var scale: CGFloat { app.playerSize.rawValue }
-    private var tint: Color { dark ? Color(white: 0.03) : Color(red: 0.98, green: 0.98, blue: 0.97) }
     var body: some View {
         VStack(spacing: 10 * scale) {
+            if !embedded, app.playerPosition.isTop { pill }
             if !embedded, !app.readingText.isEmpty {
                 ReadingPreview(text: app.readingText, scale: scale)
             }
-            pill
+            if embedded || !app.playerPosition.isTop { pill }
         }
         .scaleEffect(shown || reduceMotion ? 1 : 0.94)
         .opacity(shown ? 1 : 0)
@@ -32,7 +31,7 @@ struct PlayerView: View {
             if embedded {
                 Button { onPaste?() } label: {
                     Image(systemName: "square.on.square")
-                        .font(.system(size: 17 * scale, weight: .bold))
+                        .font(.system(size: 13 * scale, weight: .bold))
                         .foregroundStyle(.secondary)
                         .frame(width: 28 * scale, height: 28 * scale)
                 }.buttonStyle(.plain).disabled(app.hasReading || onPaste == nil)
@@ -54,7 +53,7 @@ struct PlayerView: View {
                     .help("Audio is generated on this Mac")
             }
             Button { app.stopAndDismiss() } label: {
-                Image(systemName: "xmark").font(.system(size: (embedded ? 17 : 10) * scale, weight: .bold))
+                Image(systemName: "xmark").font(.system(size: (embedded ? 13 : 10) * scale, weight: .bold))
                     .foregroundStyle(.secondary).frame(width: 28 * scale, height: 28 * scale)
                     .background {
                         if !embedded { Circle().fill(.primary.opacity(0.07)) }
@@ -62,30 +61,7 @@ struct PlayerView: View {
             }.buttonStyle(.plain).help("Stop and dismiss").accessibilityLabel("Stop and dismiss player")
         }
         .padding(.horizontal, 14 * scale).frame(height: 52 * scale)
-        .background {
-            if embedded {
-                if reduceTransparency {
-                    Capsule().fill(Color(white: 0.96))
-                } else if #available(macOS 26, *) {
-                    // Let native glass sample the text underneath, without the
-                    // opaque white tint used by the standalone floating player.
-                    Capsule().fill(.clear).glassEffect(.regular, in: Capsule())
-                } else {
-                    Capsule().fill(.ultraThinMaterial)
-                }
-            } else if #available(macOS 26, *), !reduceTransparency {
-                Capsule().fill(tint.opacity(0.45))
-                    .glassEffect(.regular.tint(dark ? .black.opacity(0.82) : .white.opacity(0.84)), in: Capsule())
-            } else {
-                Capsule().fill(tint.opacity(reduceTransparency ? 1 : 0.65))
-                    .background(.regularMaterial, in: Capsule())
-            }
-        }
-        .overlay {
-            if !embedded {
-                Capsule().strokeBorder(dark ? .white.opacity(0.24) : .black.opacity(0.42), lineWidth: 0.5)
-            }
-        }
+        .modifier(PlayerSurface(opacity: app.playerOpacity, clear: app.playerClearGlass, embedded: embedded))
         .clipShape(Capsule())
         .shadow(color: .black.opacity(dark ? 0.34 : 0.08), radius: 8, x: 0, y: 3)
         .shadow(color: .black.opacity(dark ? 0.24 : 0.08), radius: 2, x: 0, y: 1)
@@ -132,6 +108,7 @@ private final class PlayerHostingView: NSHostingView<PlayerView> {
     private var host: NSHostingView<PlayerView>
     private var hideTask: Task<Void, Never>?
     private var screenObserver: NSObjectProtocol?
+    private var cursorAnchor: NSPoint?
     init(app: AppModel) {
         self.app = app
         panel = PlayerPanel(contentRect: .zero, styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
@@ -150,20 +127,16 @@ private final class PlayerHostingView: NSHostingView<PlayerView> {
     }
     func show(keyboard: Bool = false) {
         guard app.hasReading, !app.isTextReaderOpen else { return }
+        guard app.playerPosition != .hidden else { hide(); return }
         hideTask?.cancel()
         // Measure a separate hosting view; never force the visible pill's layout
         // during its animation (the Clio overlay's important resize invariant).
         let measuring = NSHostingView(rootView: PlayerView(app: app, shown: true))
         let size = measuring.fittingSize
-        let mouse = NSEvent.mouseLocation
-        let screen = NSScreen.screens.first { $0.frame.contains(mouse) } ?? NSScreen.main!
-        var origin = panel.isVisible ? NSPoint(x: panel.frame.midX - size.width / 2, y: panel.frame.minY) : NSPoint(x: screen.visibleFrame.midX - size.width / 2, y: screen.visibleFrame.minY + 28)
-        if !panel.isVisible, let saved = UserDefaults.standard.array(forKey: "playerPosition") as? [Double], saved.count == 2 {
-            origin = NSPoint(x: saved[0], y: saved[1])
-        }
-        let display = NSScreen.screens.first { $0.visibleFrame.contains(origin) } ?? screen
-        origin.x = min(max(origin.x, display.visibleFrame.minX), display.visibleFrame.maxX - size.width)
-        origin.y = min(max(origin.y, display.visibleFrame.minY), display.visibleFrame.maxY - size.height)
+        if cursorAnchor == nil { cursorAnchor = NSEvent.mouseLocation }
+        let mouse = cursorAnchor ?? NSEvent.mouseLocation
+        guard let screen = NSScreen.screens.first(where: { $0.frame.contains(mouse) }) ?? NSScreen.main else { return }
+        let origin = app.playerPosition.origin(size: size, frame: screen.visibleFrame, cursor: mouse)
         panel.setFrame(NSRect(origin: origin, size: size), display: false)
         panel.orderFrontRegardless()
         host.rootView = PlayerView(app: app, shown: true)
@@ -171,12 +144,10 @@ private final class PlayerHostingView: NSHostingView<PlayerView> {
         if CommandLine.arguments.contains("--diagnose-window") { print("Alto player \(panel.windowNumber)"); fflush(stdout) }
     }
     func hide() {
+        cursorAnchor = nil
         host.rootView = PlayerView(app: app, shown: false)
         hideTask?.cancel()
         hideTask = Task { try? await Task.sleep(for: .milliseconds(220)); if !Task.isCancelled { panel.orderOut(nil) } }
-    }
-    func windowDidMove(_ notification: Notification) {
-        UserDefaults.standard.set([panel.frame.minX, panel.frame.minY], forKey: "playerPosition")
     }
 }
 

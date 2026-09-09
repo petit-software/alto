@@ -23,7 +23,7 @@ struct ModelsSettingsView: View {
                 Picker("Show", selection: $installedOnly) { Text("All models").tag(false); Text("Installed").tag(true) }
                     .pickerStyle(.segmented).frame(width: 210)
                 Spacer()
-                TextField("Search models", text: $query).textFieldStyle(.roundedBorder).frame(width: 180)
+                ModelSearchField(query: $query).frame(width: 180)
             }
             Form {
                 Section {
@@ -52,6 +52,30 @@ struct ModelsSettingsView: View {
             guard response == .OK, let url = panel.url else { return }
             Task { @MainActor in do { try await app.models.importLocal(url) } catch { issue = error.localizedDescription } }
         }
+    }
+}
+
+struct ModelSearchField: View {
+    @Binding var query: String
+    @Environment(\.colorScheme) private var scheme
+    var body: some View {
+        HStack(spacing: 6) {
+            Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
+            TextField("Search models", text: $query)
+                .textFieldStyle(.plain).foregroundStyle(.primary)
+                .accessibilityLabel("Search models")
+            if !query.isEmpty {
+                Button { query = "" } label: {
+                    Image(systemName: "xmark.circle.fill").foregroundStyle(.secondary)
+                }.buttonStyle(.plain).accessibilityLabel("Clear search")
+            }
+        }
+        .font(.system(size: 12))
+        .padding(.horizontal, 8).padding(.vertical, 6)
+        // Draw the surface in SwiftUI rather than using the text field's
+        // native rounded bezel, so it follows this view's current appearance.
+        .background(scheme == .dark ? Color(white: 0.12) : .white, in: RoundedRectangle(cornerRadius: 7))
+        .overlay(RoundedRectangle(cornerRadius: 7).strokeBorder(.primary.opacity(0.15), lineWidth: 0.5))
     }
 }
 

@@ -3,6 +3,15 @@ import SwiftUI
 import AltoCore
 
 final class ReaderTextView: NSTextView {
+    func updateAppearanceColors() {
+        textColor = .textColor
+        insertionPointColor = .textColor
+        needsDisplay = true
+    }
+    override func viewDidChangeEffectiveAppearance() {
+        super.viewDidChangeEffectiveAppearance()
+        updateAppearanceColors()
+    }
     override func paste(_ sender: Any?) { pasteCleanText(from: .general) }
     override func pasteAsPlainText(_ sender: Any?) { pasteCleanText(from: .general) }
     override func pasteAsRichText(_ sender: Any?) { pasteCleanText(from: .general) }
@@ -48,8 +57,7 @@ struct ReaderTextEditor: NSViewRepresentable {
         editor.allowsUndo = true
         editor.drawsBackground = false
         editor.font = .systemFont(ofSize: 17)
-        editor.textColor = .black
-        editor.insertionPointColor = .black
+        editor.updateAppearanceColors()
         editor.textContainerInset = NSSize(width: 0, height: 8)
         editor.isVerticallyResizable = true
         editor.isHorizontallyResizable = false

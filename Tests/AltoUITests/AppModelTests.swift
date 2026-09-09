@@ -6,6 +6,63 @@ import AltoCore
 @testable import AltoUI
 
 final class AppModelTests: XCTestCase {
+    @MainActor func testEditorAppearanceChangesPreserveTextAndUseSystemColors() {
+        let editor = ReaderTextView()
+        editor.string = "Keep the draft."
+        var brightness: [CGFloat] = []
+        for name in [NSAppearance.Name.aqua, .darkAqua] {
+            let appearance = NSAppearance(named: name)!
+            editor.appearance = appearance
+            editor.updateAppearanceColors()
+            appearance.performAsCurrentDrawingAppearance {
+                let color = editor.textColor!.usingColorSpace(.deviceRGB)!
+                brightness.append((color.redComponent + color.greenComponent + color.blueComponent) / 3)
+                XCTAssertEqual(editor.insertionPointColor, NSColor.textColor)
+            }
+            XCTAssertEqual(editor.string, "Keep the draft.")
+        }
+        XCTAssertGreaterThan(brightness[1], brightness[0])
+    }
+
+    func testPlayerPositionsUseClioEdgeGapAndClampCursor() {
+        let frame = NSRect(x: -1600, y: 100, width: 1600, height: 900)
+        let size = NSSize(width: 300, height: 240)
+        let cursor = NSPoint(x: -1599, y: 101)
+        for position in PlayerPosition.allCases where position != .hidden {
+            let origin = position.origin(size: size, frame: frame, cursor: cursor)
+            XCTAssertTrue(frame.contains(NSRect(origin: origin, size: size)))
+        }
+        XCTAssertEqual(PlayerPosition.bottomLeft.origin(size: size, frame: frame, cursor: cursor), NSPoint(x: -1550, y: 150))
+        XCTAssertEqual(PlayerPosition.topRight.origin(size: size, frame: frame, cursor: cursor), NSPoint(x: -350, y: 710))
+        XCTAssertEqual(PlayerPosition.bottomCenter.origin(size: size, frame: frame, cursor: cursor).x, -950)
+        let tiny = NSRect(x: 0, y: 0, width: 200, height: 100)
+        let clamped = PlayerPosition.nearCursor.origin(size: size, frame: tiny, cursor: .zero)
+        XCTAssertGreaterThanOrEqual(clamped.x, 0)
+        XCTAssertGreaterThanOrEqual(clamped.y, 0)
+    }
+
+    @MainActor func testPlayerAppearancePersistsAndHiddenDoesNotStopReading() throws {
+        try withModel { app, preferences in
+            XCTAssertEqual(app.playerPosition, .bottomCenter)
+            XCTAssertEqual(app.playerOpacity, 0.45)
+            XCTAssertFalse(app.playerClearGlass)
+            app.generation = .loading
+            var hidden = 0
+            app.hidePlayer = { hidden += 1 }
+            app.playerPosition = .hidden
+            XCTAssertEqual(hidden, 1)
+            XCTAssertTrue(app.isActive)
+            app.playerPosition = .topRight
+            app.playerOpacity = 0.18
+            app.playerClearGlass = true
+            let reopened = AppModel(modelStore: app.models, preferences: preferences, registerHotkey: false)
+            XCTAssertEqual(reopened.playerPosition, .topRight)
+            XCTAssertEqual(reopened.playerOpacity, 0.18)
+            XCTAssertTrue(reopened.playerClearGlass)
+            reopened.shutdown()
+        }
+    }
+
     @MainActor func testEditorPasteCleansTextWithoutChangingClipboard() {
         let pasteboard = NSPasteboard.withUniqueName()
         defer { pasteboard.releaseGlobally() }

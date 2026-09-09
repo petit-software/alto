@@ -22,6 +22,14 @@ See [noise investigation](../docs/audio-noise-investigation.md) for measurements
 
 ## Chrome selection and player lifecycle
 
+- [x] Shorten the repository README and preserve detailed usage/model/build information in `docs/guide.md` for the GitHub handoff.
+- [x] Replace the Models search field's rounded native bezel with an appearance-driven surface: dark fill in dark mode, white in light mode, semantic text/icons and outline. Preserve model filtering and add Clear search.
+- [x] Make the editor follow system light/dark appearance: semantic canvas, text, caret and outline colors, no forced light scheme. Set editor Paste and X to 13pt at default scale. No screen sampling or Screen Recording permission added.
+- [x] Apply native glass to the complete pill (foreground included), rather than an empty background shape, enabling regular Liquid Glass's adaptive vibrant text/symbols over changing backgrounds. Keep semantic foreground styles, opaque Reduce Transparency fallback and a contrast-protecting tint on older macOS. Explain Clear glass's weaker contrast protection in Settings.
+- [ ] Visually verify the installed native foreground adaptation over light/dark/mixed moving backgrounds in light mode; layout tests alone do not establish composited contrast.
+- [x] Inspect Clio's position/feedback controls and surface code; add Hidden, six edge positions and Near cursor plus segmented size, translucency and Clear glass to Reading → Player Appearance. Persist choices, use Clio's 64pt visible-edge spacing, clamp to the active display and keep near-cursor anchored during reading. Share the glass capsule between standalone/editor players; keep the editor placement fixed. No Clio files changed.
+  - 29 silent tests pass, including negative-coordinate displays, edge placement, cursor clamping, saved appearance settings and Hidden preserving active work.
+- [ ] Visually check all positions, glass levels, Clear glass, multiple displays and Reduce Transparency on the installed app. Do not infer surface quality from offscreen layout tests.
 - [x] Increase the editor pill's Paste and X symbols to 17pt at default scale, keeping their matching gray/bold styling and scaled control frames.
 - [x] Match editor Paste to X: secondary gray, 10pt bold symbol and 28pt control frame, scaled consistently with player size.
 - [x] Give the editor pill untinted native Liquid Glass on macOS 26, removing the opaque fill/tint that obscured the content beneath. Use ultra-thin material on older systems and a solid Reduce Transparency fallback; keep Paste / Play / X and no added border.

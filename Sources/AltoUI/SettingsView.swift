@@ -65,12 +65,29 @@ struct SettingsView: View {
                         ForEach(app.voices, id: \.path) { voice in Text(ModelDescriptor.voiceName(voice.path)).tag(voice.path) }
                     }.disabled(app.voices.isEmpty)
                     HStack { Text("Speed"); Slider(value: $app.rate, in: 0.5...2, step: 0.1); Text("\(app.rate, specifier: "%.1f")×").monospacedDigit() }
-                    Picker("Player size", selection: $app.playerSize) {
+                    Button("Manage Models…") { app.showModels?() }
+                }
+                Section {
+                    Picker("Overlay", selection: $app.playerPosition) {
+                        ForEach(PlayerPosition.allCases, id: \.self) { position in Text(position.label).tag(position) }
+                    }.pickerStyle(.radioGroup)
+                    Picker("Size", selection: $app.playerSize) {
                         ForEach(PlayerSize.allCases, id: \.self) { size in
                             Text(size.label).tag(size)
                         }
+                    }.pickerStyle(.segmented)
+                    LabeledContent("Translucency") {
+                        HStack(spacing: 8) {
+                            Slider(value: $app.playerOpacity, in: 0...1).frame(width: 140)
+                                .accessibilityLabel("Pill tint opacity")
+                            Text("\(Int(app.playerOpacity * 100))%")
+                                .font(.caption.monospacedDigit()).foregroundStyle(.secondary).frame(width: 34, alignment: .trailing)
+                        }
                     }
-                    Button("Manage Models…") { app.showModels?() }
+                    Toggle("Clear glass", isOn: $app.playerClearGlass)
+                } header: { Text("Player Appearance") } footer: {
+                    Text("Position applies to the floating reader. Size and glass apply to both players. Lower values mean less tint. Regular glass adapts text contrast to the background; Clear glass removes frosting but offers less contrast protection. Hidden leaves playback controls in the menu.")
+                        .font(.caption).foregroundStyle(.secondary)
                 }
                 Section {
                     Toggle("Clipboard fallback", isOn: $app.clipboardFallback)
