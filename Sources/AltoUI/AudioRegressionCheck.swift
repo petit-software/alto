@@ -29,6 +29,7 @@ import AltoCore
             }
             let engine = KokoroWorkerEngine()
             defer { engine.unload() }
+            var footprints: [Int] = []
             for voice in model.voices.prefix(4) {
                 for (index, passage) in passages.enumerated() {
                     let start = Date()
@@ -51,11 +52,18 @@ import AltoCore
                           leadingRMS < 0.0001 else {
                         throw AltoError("Corrupted speech: \(output.lastPathComponent), leading RMS \(leadingRMS), peak \(peak). Sample saved for inspection.")
                     }
+                    let footprint = engine.workerFootprint ?? 0
+                    footprints.append(footprint)
                     results.append(["model": id, "voice": voice.path, "characters": passage.count,
                         "leadingRMS": leadingRMS, "peak": peak, "generationSeconds": Date().timeIntervalSince(start),
-                        "audioSeconds": Double(file.length) / file.processingFormat.sampleRate])
-                    print("PASS \(output.lastPathComponent): leading RMS \(leadingRMS), peak \(peak)"); fflush(stdout)
+                        "audioSeconds": Double(file.length) / file.processingFormat.sampleRate, "workerFootprintBytes": footprint])
+                    print("PASS \(output.lastPathComponent): leading RMS \(leadingRMS), peak \(peak), worker \(footprint / 1_048_576) MB"); fflush(stdout)
                 }
+            }
+            // MLX's buffer pool once grew by gigabytes per chunk; twelve chunks
+            // reached ~40 GB. The fixed worker settles between 1 and 2 GB.
+            guard let last = footprints.last, last < 4_000_000_000 else {
+                throw AltoError("Worker memory grew to \((footprints.last ?? 0) / 1_048_576) MB after \(footprints.count) chunks. The MLX buffer pool is no longer bounded.")
             }
         }
         try JSONSerialization.data(withJSONObject: results, options: [.prettyPrinted, .sortedKeys])

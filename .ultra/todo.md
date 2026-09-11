@@ -1,6 +1,14 @@
 # Alto implementation checklist
 
-Updated: 2026-09-09. Radio-noise cause reproduced and fixed in the worker; 24 speech fixtures and exact kernel checks pass. User listening confirmation remains. Detailed architecture and original milestones: [implementation plan](../docs/implementation-plan.md). Test evidence and manual limitations: [verification](../docs/verification.md).
+Updated: 2026-09-11. Radio-noise cause reproduced and fixed in the worker; 24 speech fixtures and exact kernel checks pass. User listening confirmation remains. Detailed architecture and original milestones: [implementation plan](../docs/implementation-plan.md). Test evidence and manual limitations: [verification](../docs/verification.md).
+
+## Worker memory and Models page
+
+- [x] Trace the 49 GB `AltoSpeechWorker` footprint to MLX's unbounded Metal buffer pool: per-chunk tensor shapes defeat reuse, so freed buffers accumulate to the device limit while active model memory stays at 310 MB.
+- [x] Cap the pool at 256 MB and empty it after each request. Same 16-chunk probe: 50.4 GB → under 1.7 GB, no measurable generation slowdown. Float32/TF32 safeguards untouched.
+- [x] Record worker physical footprint per fixture in `--audio-regression`; fail above 4 GB. Fixed run: 569 MB–1.26 GB across 24 fixtures, all audio checks still pass.
+- [x] Rebuild Models settings as a grouped form matching Clio's Model tab: radio selection, glyph controls with hover help, selected-model details, Import and On-disk sections. Removed the custom search field and All/Installed filter.
+- [ ] Visually confirm the installed Models page in light and dark appearance and the Activity Monitor figure during a long reading; layout compiled and installed but not screenshotted here.
 
 ## Priority: radio-noise acceptance
 

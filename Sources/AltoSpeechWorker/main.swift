@@ -18,6 +18,27 @@ if unsafeKernelCheck || CommandLine.arguments.contains("--check-convolution") {
 // A native, persistent worker isolates third-party loader assertions from the UI.
 // Requests travel over stdin. Only an atomic response file signals completion;
 // dependency debug output is never interpreted as protocol traffic.
+// Diagnostics only: ALTO_MEMORY_LOG=1 reports MLX and process memory after
+// each request on stderr. The app discards stderr, so this never reaches users.
+let memoryLog = ProcessInfo.processInfo.environment["ALTO_MEMORY_LOG"] != nil
+func reportMemory(_ label: String) {
+    guard memoryLog else { return }
+    var info = task_vm_info_data_t()
+    var count = mach_msg_type_number_t(MemoryLayout<task_vm_info_data_t>.size / MemoryLayout<natural_t>.size)
+    let result = withUnsafeMutablePointer(to: &info) {
+        $0.withMemoryRebound(to: integer_t.self, capacity: Int(count)) { task_info(mach_task_self_, task_flavor_t(TASK_VM_INFO), $0, &count) }
+    }
+    let footprint = result == KERN_SUCCESS ? Int(info.phys_footprint) : -1
+    let snapshot = MLX.Memory.snapshot()
+    let mb = { (bytes: Int) in String(format: "%.0f", Double(bytes) / 1_048_576) }
+    FileHandle.standardError.write("MEM \(label) footprint=\(mb(footprint))MB active=\(mb(snapshot.activeMemory))MB cache=\(mb(snapshot.cacheMemory))MB peak=\(mb(snapshot.peakMemory))MB cacheLimit=\(mb(MLX.Memory.cacheLimit))MB\n".data(using: .utf8)!)
+}
+// MLX keeps every freed GPU buffer in a pool and only recycles one of almost
+// identical size. Each chunk's tensors are shaped by its own length, so the
+// pool grew by several gigabytes per chunk until it reached the device limit
+// (~50 GB on a 64 GB Mac). Bounding the pool costs no measurable time; the
+// worker idles between chunks, so the pool is also emptied after each request.
+MLX.Memory.cacheLimit = 256 * 1024 * 1024
 var engine: KokoroTTS?
 var loadedPath: String?
 let scratch = CommandLine.arguments.count > 1 ? URL(fileURLWithPath: CommandLine.arguments[1]) : FileManager.default.temporaryDirectory
@@ -72,6 +93,8 @@ while let line = readLine() {
     } catch {
         response.error = error.localizedDescription
     }
+    MLX.Memory.clearCache()
+    reportMemory("after-request samples=\(response.samples)")
     if let data = try? JSONEncoder().encode(response) {
         try? data.write(to: URL(fileURLWithPath: request.output + ".json"), options: .atomic)
     }

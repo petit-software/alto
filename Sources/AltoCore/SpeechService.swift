@@ -59,6 +59,16 @@ import AVFoundation
         unload()
         throw AltoError("The model took too long to respond. Try a shorter selection or another model.")
     }
+    /// Physical footprint of the running worker in bytes, as Activity Monitor
+    /// reports it. Regression checks use this to catch runaway GPU memory.
+    public var workerFootprint: Int? {
+        guard let pid = process?.processIdentifier, process?.isRunning == true else { return nil }
+        var info = rusage_info_v4()
+        let status = withUnsafeMutablePointer(to: &info) { pointer in
+            pointer.withMemoryRebound(to: rusage_info_t?.self, capacity: 1) { proc_pid_rusage(pid, RUSAGE_INFO_V4, $0) }
+        }
+        return status == 0 ? Int(info.ri_phys_footprint) : nil
+    }
     public func unload() {
         try? input?.fileHandleForWriting.close()
         if process?.isRunning == true { process?.terminate() }

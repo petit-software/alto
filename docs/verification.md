@@ -117,6 +117,28 @@ be interpreted as a fair cold-start comparison. Peak RSS was measured in separat
 short worker invocations using `/usr/bin/time -l`; the compact measurement includes
 weight preparation. Longer passages can require more memory.
 
+## Worker memory growth — 2026-09-11
+
+Activity Monitor showed the persistent worker at 49 GB after ordinary reading.
+MLX's Metal allocator keeps every freed buffer in a pool whose limit defaults to
+the device memory limit (about 62 GB on this 64 GB Mac) and only reuses a pooled
+buffer of nearly the same size. Each chunk has its own tensor shapes, so the pool
+almost never hit and grew by roughly 3–5 GB per chunk. Active model memory stayed
+at 310 MB throughout; the rest was pool.
+
+Measured with an opt-in worker log (`ALTO_MEMORY_LOG=1` on stderr) over the same
+16 varied chunks:
+
+| Worker configuration | Physical footprint after 16 chunks | Per-chunk generation |
+| --- | ---: | ---: |
+| Unbounded pool (before) | 50.4 GB | 0.4–2.0 s |
+| 256 MB pool, cleared after each request (now) | 0.8–1.7 GB | 0.4–1.4 s |
+
+Bounding the pool cost no measurable time. `--audio-regression` now records the
+worker's physical footprint per fixture and fails if it exceeds 4 GB, so the
+regression is caught silently. The fixed run stayed between 569 MB and 1.26 GB
+across all 24 fixtures.
+
 Warm short-text synthesis is comfortably faster than real time on this test Mac.
 The plan's M1 latency target, precise shortcut-to-player latency and stop latency
 have not been measured. No equivalent M1 performance claim is made.
