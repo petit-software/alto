@@ -12,14 +12,16 @@ Requires **Apple Silicon and macOS 15+**. Liquid Glass is available on macOS 26.
 3. Select English text in a supported app and press **Option–Space**.
    The shortcut is configurable.
 
-Or choose **Read Text…** from the menu to paste into the editor. The glass player
+Or right-click selected text in any app and choose **Services → Listen with
+Alto**; this needs no Accessibility access. Or choose **Read Text…** from the
+menu to paste into the editor. The glass player
 provides play/pause and X to stop. Adjust voice, speed, player position, size,
 and glass appearance in Settings.
 
 - Kokoro (~329 MB) and Kokoro Compact (~164 MB).
 - Compatible Kokoro v1 safetensors imports from local files or public Hugging Face repositories.
 - Chunked audio generation, download progress, and offline playback.
-- Tags and emojis skipped; pasted text cleaned in the editor.
+- Tags and emojis skipped; whole-page selections lose navigation, captions and footers.
 - Light/dark editor, no saved reading history, and no telemetry.
 
 English US/UK only for now. Accessibility capture uses a clipboard-preserving
@@ -47,6 +49,7 @@ Run silent tests with `swift test`.
 [Usage, model formats, and build details](docs/guide.md) ·
 [Verification and limitations](docs/verification.md) ·
 [Implementation plan](docs/implementation-plan.md) ·
+[Services plan](docs/listen-with-alto-service-plan.md) ·
 [Third-party notices](Resources/THIRD_PARTY_NOTICES.md)
 
 Player design adapted from [Clio](https://github.com/petit-software/clio).

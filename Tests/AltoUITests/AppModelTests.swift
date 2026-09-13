@@ -308,3 +308,48 @@ final class AppModelTests: XCTestCase {
         }
     }
 }
+
+final class ServiceTests: XCTestCase {
+    @MainActor func testServiceReadsPrivatePasteboardWithoutTouchingClipboard() throws {
+        let suite = "software.petit.alto.tests." + UUID().uuidString
+        let preferences = UserDefaults(suiteName: suite)!
+        preferences.set(false, forKey: "shortcutEnabled")
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent("alto-service-test-" + UUID().uuidString)
+        let app = AppModel(modelStore: ModelStore(root: root), preferences: preferences, registerHotkey: false)
+        defer { app.shutdown(); preferences.removePersistentDomain(forName: suite); try? FileManager.default.removeItem(at: root) }
+        XCTAssertTrue(app.skipPageClutter)
+        let general = NSPasteboard.general.changeCount
+        let pasteboard = NSPasteboard.withUniqueName()
+        defer { pasteboard.releaseGlobally() }
+        pasteboard.setString(PageTextFixture.page, forType: .string)
+        var received: NSPasteboard?
+        let provider = ServiceProvider { received = $0 }
+        var error: NSString?
+        provider.listenWithAlto(pasteboard, userData: nil, error: &error)
+        XCTAssertTrue(received === pasteboard)
+        var opened = 0
+        app.showWindow = { opened += 1 }
+        app.readService(pasteboard)
+        // No voice model is installed in the test store: the cleaned text reached the reading path and stopped there.
+        XCTAssertEqual(app.message, "Download and select a voice model in Models to start listening.")
+        XCTAssertEqual(opened, 1)
+        XCTAssertEqual(NSPasteboard.general.changeCount, general)
+        app.skipPageClutter = false
+        XCTAssertFalse(AppModel(modelStore: app.models, preferences: preferences, registerHotkey: false).skipPageClutter)
+    }
+}
+
+enum PageTextFixture {
+    static let page = """
+    About
+    Articles
+    Sign in
+    Subscribe
+    Lifted AF ⊗ Cyborgs, centaurs and cyberpunks
+    In e-flux Journal, McKenzie Wark reviews Exocapitalism: Economies with Absolutely No Limits by Marek Poliks and Roberto Alonso Trillo. The authors start from the premise that the critical tradition gets capitalism wrong and needs a new vocabulary to describe it.
+    The book’s central idea is “Lift.” Physical production comes with workers, fixed costs, and problems of scale, and companies would rather avoid all of it. A hotel company stops running hotels and becomes a brand, a financing arm, and a data business.
+    Back issues
+    Membership
+    Sign up
+    """
+}

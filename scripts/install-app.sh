@@ -31,6 +31,9 @@ if [ -d /Applications/Alto.app ]; then
   echo "Previous installation preserved at $staging_dir/Previous.app"
 fi
 mv "$staging_dir/Alto.app" /Applications/Alto.app
+# Register the bundle so "Listen with Alto" appears in other apps' Services menus without a logout.
+/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -f /Applications/Alto.app
+/System/Library/CoreServices/pbs -update || true
 open /Applications/Alto.app
 for attempt in {1..50}; do
   if pgrep -f '^/Applications/Alto.app/Contents/MacOS/Alto( |$)' >/dev/null; then

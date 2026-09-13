@@ -40,6 +40,20 @@ gives the pill keyboard focus. Changing voice restarts the current
 passage. Switching models stops reading and checks the new model before saving
 your choice. If loading fails, the previous preference is preserved.
 
+**Listen with Alto** appears under **Services** in the right-click menu (and the
+app menu) of any Mac app that supports text services, such as Safari, Chrome,
+Mail, Notes and TextEdit. Select text, even a whole web page, and choose it.
+The host app hands the selection to Alto directly, so this route needs no
+Accessibility access and never touches your clipboard. With **Settings →
+Reading → Skip page clutter** on (the default), navigation links, share
+prompts, image captions, newsletter forms and legal footers are dropped and
+only the article prose and its headings are read; the same filter applies to
+Read Clipboard and Paste. Short selections and ordinary prose pass through
+unchanged, and the developer preview shows exactly what will be read. If the
+item is missing, enable it in System Settings → Keyboard → Keyboard Shortcuts
+→ Services, where you can also give it a shortcut. Some cross-platform apps
+have no Services menu; use Read Clipboard there.
+
 **Read Text…** in the menu opens a dedicated paste window with the player at the
 bottom. Press Play to read; X or closing the window stops reading and clears the
 draft. Voice, speed and player size remain in Settings. You can also choose
@@ -148,6 +162,11 @@ only marked installed after all files and its tensor schema validate.
   text copied during fallback. Disable fallback if that is unsuitable.
 - Protected fields, inaccessible canvas text, and apps that suppress Copy cannot
   be read reliably. Use Read Clipboard as an explicit alternative.
+- Page clutter removal is heuristic. Sidebars written as full sentences and
+  comment threads can survive; short legitimate lines inside dense link lists
+  can be lost. Plain-text hosts such as Chrome give no link or image
+  information, so results there are slightly rougher than in Safari. Turn the
+  setting off to read pasted text exactly as copied.
 - The bundled phonemizer supports English US/UK. Clearly non-English selections
   are rejected; mixed-language detection is imperfect. The upstream model's
   broader language list does not imply Alto supports those pipelines.

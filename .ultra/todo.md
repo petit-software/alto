@@ -1,6 +1,14 @@
 # Alto implementation checklist
 
-Updated: 2026-09-11. Radio-noise cause reproduced and fixed in the worker; 24 speech fixtures and exact kernel checks pass. User listening confirmation remains. Detailed architecture and original milestones: [implementation plan](../docs/implementation-plan.md). Test evidence and manual limitations: [verification](../docs/verification.md).
+Updated: 2026-09-13. Radio-noise cause reproduced and fixed in the worker; 24 speech fixtures and exact kernel checks pass. User listening confirmation remains. Detailed architecture and original milestones: [implementation plan](../docs/implementation-plan.md). Test evidence and manual limitations: [verification](../docs/verification.md).
+
+## Listen with Alto service — 2026-09-13
+
+- [x] Add an `NSServices` entry (generated `Support/Info.plist` via `project.yml`), a `ServiceProvider` set as `NSApp.servicesProvider`, and `AppModel.readService` that reads the private service pasteboard through the existing reading path. The general clipboard is never written.
+- [x] Add `PageText`: plain-text block classification (navigation runs, menu phrases, dates, read times, captions, cookie and legal text), heading preservation, duplicate removal, a fallback guardrail, and RTF link density with attachment removal.
+- [x] Add Settings → Reading → Skip page clutter (default on) governing the service, Read Clipboard and Paste; the shortcut path is unchanged.
+- [x] Register the bundle in `install-app.sh` with `lsregister` and `pbs -update`. Installed copy verified: plist entry, `pbs -dump` listing, and an `NSPerformService` round trip with whitespace text. 36 silent tests pass.
+- [ ] Right-click in Safari, Chrome, TextEdit, Notes, Mail, Preview and Slack; record which hosts show the item and send RTF. Listen once to the cleaned example page.
 
 ## Worker memory and Models page
 

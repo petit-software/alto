@@ -15,9 +15,10 @@ final class ReaderTextView: NSTextView {
     override func paste(_ sender: Any?) { pasteCleanText(from: .general) }
     override func pasteAsPlainText(_ sender: Any?) { pasteCleanText(from: .general) }
     override func pasteAsRichText(_ sender: Any?) { pasteCleanText(from: .general) }
+    var skipsPageClutter = false
     func pasteCleanText(from pasteboard: NSPasteboard) {
         guard isEditable, let source = pasteboard.string(forType: .string) else { return }
-        let cleaned = SpeechText.prepare(source, trim: false)
+        let cleaned = skipsPageClutter ? PageText.clean(from: pasteboard) : SpeechText.prepare(source, trim: false)
         guard !cleaned.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
         insertText(cleaned, replacementRange: selectedRange())
     }
@@ -44,6 +45,7 @@ struct ReaderTextEditor: NSViewRepresentable {
     var editable: Bool
     var pasteRequest: Int
     var bottomInset: CGFloat = 0
+    var skipsPageClutter = false
     func makeCoordinator() -> Coordinator { Coordinator(self) }
     func makeNSView(context: Context) -> NSScrollView {
         let scroll = NSScrollView()
@@ -80,6 +82,7 @@ struct ReaderTextEditor: NSViewRepresentable {
         }
         guard let editor = scroll.documentView as? ReaderTextView else { return }
         editor.isEditable = editable
+        editor.skipsPageClutter = skipsPageClutter
         if editor.string != text {
             editor.string = text
             editor.undoManager?.removeAllActions()

@@ -26,6 +26,17 @@ targets:
         product: AltoUI
       - target: AltoSpeechWorker
         embed: false
+    info:
+      path: Support/Info.plist
+      properties:
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        NSServices:
+          - NSMenuItem:
+              default: Listen with Alto
+            NSMessage: listenWithAlto
+            NSPortName: Alto
+            NSSendTypes: [public.rtf, public.utf8-plain-text]
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: software.petit.alto

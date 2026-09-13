@@ -166,6 +166,28 @@ does not constitute a verified permission grant or cross-app selection test.
   Existing checks establish valid generated audio and working playback, not a
   comprehensive pronunciation or listening-quality assessment.
 
+### Listen with Alto service — 2026-09-13
+
+Verified silently on the installed copy: the Info.plist `NSServices` entry is
+present with the app version intact, `pbs -dump` lists “Listen with Alto” with
+`public.rtf` and `public.utf8-plain-text` send types, and `NSPerformService`
+from a separate process delivered a whitespace-only pasteboard to the running
+app (return value true, general clipboard change count unchanged). Unit tests
+cover the clutter classifier on a flattened whole-page selection, prose
+pass-through, guardrail fallback, list and footnote survival, a real RTF
+pasteboard round trip with links and an attachment, and the service handoff
+into `AppModel`. No speech was produced.
+
+Still manual:
+
+- Right-click selected text in Safari, Chrome, TextEdit, Notes, Mail, Preview
+  and Slack; confirm the Services submenu shows the item, note which hosts send
+  RTF versus plain text only, and which show no Services submenu at all.
+- Select all on the Sentiers example page in Safari and Chrome, choose the
+  service, and compare the developer preview with the article body.
+- Invoke the service while Alto is not running and while it is mid reading.
+- Listen to the cleaned page once for heading pauses and dropped content.
+
 Signing/notarization for public distribution remains separate. The delivered app
 is a local MVP build, not a notarized public release.
 

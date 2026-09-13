@@ -46,6 +46,7 @@ final class AppModel {
     var playerOpacity: Double { didSet { defaults.set(playerOpacity, forKey: "playerOpacity") } }
     var playerClearGlass: Bool { didSet { defaults.set(playerClearGlass, forKey: "playerClearGlass") } }
     var clipboardFallback: Bool { didSet { defaults.set(clipboardFallback, forKey: "clipboardFallback") } }
+    var skipPageClutter: Bool { didSet { defaults.set(skipPageClutter, forKey: "skipPageClutter") } }
     var shortcutLabel: String { didSet { defaults.set(shortcutLabel, forKey: "shortcutLabel") } }
     private(set) var shortcutEnabled: Bool
     var keyCode: UInt32
@@ -100,6 +101,7 @@ final class AppModel {
         playerOpacity = defaults.object(forKey: "playerOpacity") == nil ? 0.45 : min(1, max(0, defaults.double(forKey: "playerOpacity")))
         playerClearGlass = defaults.bool(forKey: "playerClearGlass")
         clipboardFallback = defaults.object(forKey: "clipboardFallback") == nil ? true : defaults.bool(forKey: "clipboardFallback")
+        skipPageClutter = defaults.object(forKey: "skipPageClutter") == nil ? true : defaults.bool(forKey: "skipPageClutter")
         shortcutLabel = defaults.string(forKey: "shortcutLabel") ?? "⌥ Space"
         shortcutEnabled = defaults.object(forKey: "shortcutEnabled") as? Bool ?? true
         keyCode = UInt32(defaults.object(forKey: "keyCode") as? Int ?? 49)
@@ -179,7 +181,12 @@ final class AppModel {
             }
         }
     }
-    func readClipboard() { read(NSPasteboard.general.string(forType: .string) ?? "") }
+    func readClipboard() { read(from: .general) }
+    /// Services hand over a private pasteboard; the general clipboard is untouched.
+    func readService(_ pasteboard: NSPasteboard) { read(from: pasteboard) }
+    private func read(from pasteboard: NSPasteboard) {
+        read(skipPageClutter ? PageText.clean(from: pasteboard) : pasteboard.string(forType: .string) ?? "")
+    }
     func read(_ text: String) {
         do {
             let source = try SelectionReader.checked(text)

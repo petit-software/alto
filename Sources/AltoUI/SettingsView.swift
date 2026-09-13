@@ -94,6 +94,11 @@ struct SettingsView: View {
                 } footer: {
                     Text("Uses Copy when needed, then restores your clipboard unless it changed. Clipboard history apps may retain the copy.").font(.caption).foregroundStyle(.secondary)
                 }
+                Section {
+                    Toggle("Skip page clutter", isOn: $app.skipPageClutter)
+                } header: { Text("Listen with Alto") } footer: {
+                    Text("Right-click selected text in another app and choose Services → Listen with Alto. No Accessibility access is needed. Skipping clutter removes navigation links, share prompts, image captions and footers from whole-page selections, Read Clipboard and Paste; the selection shortcut reads exactly what you selected.").font(.caption).foregroundStyle(.secondary)
+                }
                 Section("Read Text") {
                     Button("Open Read Text…") { app.openTextReader() }
                 }

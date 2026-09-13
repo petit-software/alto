@@ -15,7 +15,7 @@ struct TextReaderView: View {
                     .padding(.horizontal, 28).padding(.top, 8)
             }
             ReaderTextEditor(text: $app.draftText, editable: !app.hasReading, pasteRequest: pasteRequest,
-                             bottomInset: 52 * app.playerSize.rawValue + 44)
+                             bottomInset: 52 * app.playerSize.rawValue + 44, skipsPageClutter: app.skipPageClutter)
                 .padding(.horizontal, 28).padding(.top, 24)
         }
         .frame(minWidth: 480, minHeight: 480)

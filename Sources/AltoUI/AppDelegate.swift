@@ -13,6 +13,7 @@ public struct AltoSettingsRoot: View {
     @Published private var app: AppModel!
     private var player: PlayerController!
     private var textReader: TextReaderController!
+    private var services: ServiceProvider!
     private var statusItem: NSStatusItem!
     private var permissionTimer: Timer?
     @ViewBuilder public var settingsContent: some View {
@@ -50,6 +51,8 @@ public struct AltoSettingsRoot: View {
         app.showSettings = { [weak self] in self?.showSettings() }
         app.showPlayer = { [weak self] in self?.player.show() }
         app.hidePlayer = { [weak self] in self?.player.hide() }
+        services = ServiceProvider { [weak self] pasteboard in self?.app.readService(pasteboard) }
+        NSApp.servicesProvider = services
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         statusItem.button?.image = NSImage(systemSymbolName: "play.circle", accessibilityDescription: "Alto — Read aloud")
         statusItem.button?.image?.isTemplate = true
