@@ -27,7 +27,12 @@ choices (Hidden, six edge positions, Near cursor), Default/1.25×/1.5× sizing,
 Translucency and Clear glass. Position affects the standalone player; size and
 glass apply to both. Hidden keeps playback running with controls in the menu.
 A scrollable developer preview above the pill shows the captured text being read.
-The preview stays in memory only and clears when reading stops or completes.
+Its **Follow reading** switch tints the passage being played and highlights the
+word Alto is estimated to be on, scrolling the preview along. The speech model
+gives no word timings, so the word is derived from how much of the passage's
+audio has played, mapped onto its characters; expect it to lead or trail by a
+word or two. The preview stays in memory only and clears when reading stops or
+completes.
 Speech skips HTML/XML markup and emojis, while keeping the text inside tags.
 The preview shows the filtered speech text. Pasting into the editor also removes
 tags and emojis; the original source app and clipboard are not changed. Paste is

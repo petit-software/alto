@@ -1,52 +1,48 @@
 # Alto
 
 A native macOS menu-bar app that reads text aloud with local Kokoro AI voices.
-Works offline after downloading a model—no account, Python, or cloud speech service.
+Works offline after downloading a model. No account, Python, or cloud speech service.
+
+Requires **Apple Silicon and macOS 15+**. English US/UK only for now.
 
 ## Use
 
-Requires **Apple Silicon and macOS 15+**. Liquid Glass is available on macOS 26.
+Open Alto and download a voice model in **Settings → Models**. Then read text
+in any of three ways:
 
-1. Open Alto and download a voice model in **Settings → Models**.
-2. Enable Alto in **System Settings → Privacy & Security → Accessibility**.
-3. Select English text in a supported app and press **Option–Space**.
-   The shortcut is configurable.
+- **Right-click → Services → Listen with Alto.** Works in any app with a
+  Services menu and needs no permissions. Whole-page selections are cleaned of
+  navigation, captions, forms and footers before reading.
+- **Select text and press Option–Space.** Needs Alto enabled in
+  **System Settings → Privacy & Security → Accessibility**. The shortcut is
+  configurable.
+- **Read Text… or Read Clipboard** from the menu-bar icon. Paste or use what
+  you copied.
 
-Or right-click selected text in any app and choose **Services → Listen with
-Alto**; this needs no Accessibility access. Or choose **Read Text…** from the
-menu to paste into the editor. The glass player
-provides play/pause and X to stop. Adjust voice, speed, player position, size,
-and glass appearance in Settings.
+The floating glass player has play/pause and X to stop. Voice, speed, player
+position, size and glass appearance live in Settings.
 
-- Kokoro (~329 MB) and Kokoro Compact (~164 MB).
-- Compatible Kokoro v1 safetensors imports from local files or public Hugging Face repositories.
-- Chunked audio generation, download progress, and offline playback.
-- Tags and emojis skipped; whole-page selections lose navigation, captions and footers.
-- Light/dark editor, no saved reading history, and no telemetry.
+Models: Kokoro (~329 MB) and Kokoro Compact (~164 MB), plus compatible Kokoro v1
+safetensors imported from local files or public Hugging Face repositories.
+Markup and emojis are skipped. No reading history, no telemetry.
 
-English US/UK only for now. Accessibility capture uses a clipboard-preserving
-fallback where needed; clipboard-history apps may retain the temporary copy.
-Other model families and formats aren't supported yet.
-
-## Build and run
+## Build
 
 Use full Xcode with its Metal toolchain and Swift 6.2 or newer.
 
 ```sh
-./scripts/install-app.sh
+./scripts/install-app.sh   # build, install to /Applications, launch
+./scripts/build-app.sh     # bundle only, in dist/Alto.app
+swift test                 # silent unit tests
 ```
 
-This builds, installs to `/Applications/Alto.app`, and launches Alto.
-For a bundle only, run `./scripts/build-app.sh`; output is `dist/Alto.app`.
-
-Builds use an available Apple Development certificate, otherwise ad-hoc signing.
-Ad-hoc rebuilds may require Accessibility re-approval. Local builds are **not notarized**.
-
-Run silent tests with `swift test`.
+Builds sign with an available Apple Development certificate, otherwise ad-hoc,
+which may require re-approving Accessibility after a rebuild. Local builds are
+**not notarized**.
 
 ## More
 
-[Usage, model formats, and build details](docs/guide.md) ·
+[Guide: usage, models, formats, build](docs/guide.md) ·
 [Verification and limitations](docs/verification.md) ·
 [Implementation plan](docs/implementation-plan.md) ·
 [Services plan](docs/listen-with-alto-service-plan.md) ·

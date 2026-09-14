@@ -32,8 +32,10 @@
 			<string>Alto</string>
 			<key>NSSendTypes</key>
 			<array>
-				<string>public.rtf</string>
+				<string>NSStringPboardType</string>
+				<string>NSRTFPboardType</string>
 				<string>public.utf8-plain-text</string>
+				<string>public.rtf</string>
 			</array>
 		</dict>
 	</array>

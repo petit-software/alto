@@ -75,10 +75,14 @@ when they sit inside the article.
 Option A details:
 
 - Info.plist gains one `NSServices` entry: `NSMenuItem.default = "Listen with Alto"`,
-  `NSMessage = "listenWithAlto"`, `NSPortName = "Alto"`,
-  `NSSendTypes = ["public.rtf", "public.utf8-plain-text"]`, no return types, no
+  `NSMessage = "listenWithAlto"`, `NSPortName = "Alto"`, no return types, no
   default key equivalent (users assign one in Keyboard Shortcuts → Services).
-  `NSServiceDescription` can hold a one-line explanation shown in that pane.
+  `NSSendTypes` lists the legacy names first, `NSStringPboardType` and
+  `NSRTFPboardType`, then `public.utf8-plain-text` and `public.rtf`. Declaring
+  only the UTI spellings hid the item in Chrome: AppKit asks the host whether
+  it can provide each declared type by name, and Chromium compares the
+  request to the legacy constant literally, as do Apple's own services and
+  Raycast in `pbs -dump`. Cocoa hosts accept either spelling.
 - `project.yml` currently sets `GENERATE_INFOPLIST_FILE: YES`. Add an `info:`
   block with a `properties` dictionary so XcodeGen writes the entry into the
   generated plist, then regenerate the project. The generated keys still merge.
@@ -88,6 +92,13 @@ Option A details:
   If Alto is not running, macOS launches it and delivers the request after
   launch, so the provider must be installed before the diagnostic early returns
   in that method finish, and before setup prompts.
+- Exactly one copy of Alto may be registered. `install-app.sh` used to keep
+  the previous build in a hidden `/Applications/.alto-install.*` folder, and
+  LaunchServices scans those, so `pbs -dump_cache` listed six providers for
+  the same bundle identifier and service, and the item stayed out of every
+  app's Services submenu. The script now stages in `/private/tmp`,
+  unregisters the previous copy and the build and `dist` bundles, and flushes
+  `pbs`.
 - LaunchServices registers services when the bundle lands in `/Applications`.
   During development, `lsregister -f /Applications/Alto.app` and
   `/System/Library/CoreServices/pbs -update` refresh the registry; `pbs -dump`

@@ -17,7 +17,8 @@ struct PlayerView: View {
         VStack(spacing: 10 * scale) {
             if !embedded, app.playerPosition.isTop { pill }
             if !embedded, !app.readingText.isEmpty {
-                ReadingPreview(text: app.readingText, scale: scale)
+                ReadingPreview(text: app.readingText, scale: scale, highlight: app.readingHighlight,
+                               follow: Binding(get: { app.followReading }, set: { app.followReading = $0 }))
             }
             if embedded || !app.playerPosition.isTop { pill }
         }
@@ -71,25 +72,72 @@ struct PlayerView: View {
 struct ReadingPreview: View {
     let text: String
     let scale: CGFloat
+    var highlight: ReadingHighlight? = nil
+    var follow: Binding<Bool> = .constant(false)
+    private var paragraphs: [(id: Int, range: Range<String.Index>)] {
+        var result: [(id: Int, range: Range<String.Index>)] = []
+        var start = text.startIndex
+        while true {
+            let end = text[start...].firstIndex(of: "\n") ?? text.endIndex
+            result.append((result.count, start..<end))
+            if end == text.endIndex { break }
+            start = text.index(after: end)
+        }
+        return result
+    }
     var body: some View {
         VStack(alignment: .leading, spacing: 8 * scale) {
-            Label("Developer preview · Captured text", systemImage: "text.alignleft")
-                .font(.system(size: 10 * scale, weight: .semibold))
-                .foregroundStyle(.secondary)
-            ScrollView {
-                Text(verbatim: text)
-                    .font(.system(size: 12 * scale))
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .fixedSize(horizontal: false, vertical: true)
+            HStack {
+                Label("Developer preview · Captured text", systemImage: "text.alignleft")
+                    .font(.system(size: 10 * scale, weight: .semibold))
+                    .foregroundStyle(.secondary)
+                Spacer(minLength: 8)
+                Toggle("Follow reading", isOn: follow)
+                    .toggleStyle(.switch).controlSize(.mini)
+                    .font(.system(size: 10 * scale)).foregroundStyle(.secondary)
+                    .help("Highlight the passage and word being read")
+            }
+            ScrollViewReader { proxy in
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 0) {
+                        ForEach(paragraphs, id: \.id) { paragraph in
+                            Text(attributed(paragraph.range))
+                                .font(.system(size: 12 * scale))
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .fixedSize(horizontal: false, vertical: true)
+                                .id(paragraph.id)
+                        }
+                    }
+                    .accessibilityElement(children: .ignore)
                     .accessibilityLabel("Text to be read")
                     .accessibilityValue(text)
-            }.frame(height: 120 * scale)
+                }.frame(height: 120 * scale)
+                    .onChange(of: highlight?.word.lowerBound) { _, position in
+                        guard follow.wrappedValue, let position,
+                              let paragraph = paragraphs.first(where: { $0.range.contains(position) || $0.range.upperBound == position }) else { return }
+                        withAnimation(.easeOut(duration: 0.2)) { proxy.scrollTo(paragraph.id, anchor: .center) }
+                    }
+            }
         }
         .padding(12 * scale)
         .frame(width: 320 * scale)
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 14 * scale))
         .overlay(RoundedRectangle(cornerRadius: 14 * scale).strokeBorder(.primary.opacity(0.15), lineWidth: 0.5))
         .shadow(color: .black.opacity(0.12), radius: 8, y: 3)
+    }
+    private func attributed(_ range: Range<String.Index>) -> AttributedString {
+        var attributed = AttributedString(text[range])
+        guard let highlight else { return attributed }
+        func apply(_ target: Range<String.Index>, _ color: Color) {
+            let lower = max(target.lowerBound, range.lowerBound), upper = min(target.upperBound, range.upperBound)
+            guard lower < upper else { return }
+            let start = attributed.index(attributed.startIndex, offsetByCharacters: text.distance(from: range.lowerBound, to: lower))
+            let end = attributed.index(attributed.startIndex, offsetByCharacters: text.distance(from: range.lowerBound, to: upper))
+            attributed[start..<end].backgroundColor = color
+        }
+        apply(highlight.chunk, Color.altoAccent.opacity(0.14))
+        apply(highlight.word, Color.altoAccent.opacity(0.5))
+        return attributed
     }
 }
 

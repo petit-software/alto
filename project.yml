@@ -36,7 +36,7 @@ targets:
               default: Listen with Alto
             NSMessage: listenWithAlto
             NSPortName: Alto
-            NSSendTypes: [public.rtf, public.utf8-plain-text]
+            NSSendTypes: [NSStringPboardType, NSRTFPboardType, public.utf8-plain-text, public.rtf]
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: software.petit.alto

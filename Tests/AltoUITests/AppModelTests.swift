@@ -353,3 +353,47 @@ enum PageTextFixture {
     Sign up
     """
 }
+
+final class StatusIconTests: XCTestCase {
+    @MainActor func testMenuBarGlyphIsTemplateWithDotsAsHoles() throws {
+        let image = StatusIcon.image()
+        XCTAssertTrue(image.isTemplate)
+        XCTAssertEqual(image.size, NSSize(width: 18, height: 15))
+        let bitmap = try XCTUnwrap(NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: 180, pixelsHigh: 150, bitsPerSample: 8,
+            samplesPerPixel: 4, hasAlpha: true, isPlanar: false, colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 0))
+        NSGraphicsContext.saveGraphicsState()
+        NSGraphicsContext.current = NSGraphicsContext(bitmapImageRep: bitmap)
+        image.draw(in: NSRect(x: 0, y: 0, width: 180, height: 150))
+        NSGraphicsContext.restoreGraphicsState()
+        func alpha(_ x: Int, _ yFromTop: Int) -> CGFloat { bitmap.colorAt(x: x, y: yFromTop)?.alphaComponent ?? 0 }
+        XCTAssertGreaterThan(alpha(20, 25), 0.9, "bubble body is filled")
+        XCTAssertGreaterThan(alpha(95, 135), 0.9, "tail is filled")
+        for x in [45, 90, 135] { XCTAssertLessThan(alpha(x, 60), 0.1, "dot at \(x) is a hole") }
+        XCTAssertLessThan(alpha(170, 140), 0.1, "corner outside the bubble is clear")
+    }
+}
+
+final class FollowReadingTests: XCTestCase {
+    @MainActor func testPreviewWithHighlightAndToggleKeepsLayoutAndPersistsSetting() throws {
+        let text = String(repeating: "Selected text to read.\n", count: 40)
+        let chunk = try XCTUnwrap(text.range(of: "Selected text to read."))
+        let highlight = ReadingHighlight(chunk: chunk, word: chunk.lowerBound..<text.index(chunk.lowerBound, offsetBy: 8))
+        for size in PlayerSize.allCases {
+            let plain = NSHostingView(rootView: ReadingPreview(text: text, scale: size.rawValue)).fittingSize
+            let highlighted = NSHostingView(rootView: ReadingPreview(text: text, scale: size.rawValue, highlight: highlight, follow: .constant(true))).fittingSize
+            XCTAssertEqual(plain, highlighted)
+            XCTAssertEqual(highlighted.width, 320 * size.rawValue, accuracy: 1)
+        }
+        let suite = "software.petit.alto.tests." + UUID().uuidString
+        let preferences = UserDefaults(suiteName: suite)!
+        preferences.set(false, forKey: "shortcutEnabled")
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent("alto-follow-test-" + UUID().uuidString)
+        let app = AppModel(modelStore: ModelStore(root: root), preferences: preferences, registerHotkey: false)
+        defer { app.shutdown(); preferences.removePersistentDomain(forName: suite); try? FileManager.default.removeItem(at: root) }
+        XCTAssertTrue(app.followReading)
+        XCTAssertNil(app.readingHighlight)
+        app.followReading = false
+        XCTAssertFalse(AppModel(modelStore: app.models, preferences: preferences, registerHotkey: false).followReading)
+        XCTAssertNil(app.audio.playingProgress())
+    }
+}

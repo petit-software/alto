@@ -10,6 +10,13 @@ Updated: 2026-09-13. Radio-noise cause reproduced and fixed in the worker; 24 sp
 - [x] Register the bundle in `install-app.sh` with `lsregister` and `pbs -update`. Installed copy verified: plist entry, `pbs -dump` listing, and an `NSPerformService` round trip with whitespace text. 36 silent tests pass.
 - [ ] Right-click in Safari, Chrome, TextEdit, Notes, Mail, Preview and Slack; record which hosts show the item and send RTF. Listen once to the cleaned example page.
 
+## Follow reading — 2026-09-13
+
+- [x] Track per-buffer playback progress in `AudioPlayback` from the player node's sample clock (holds while paused, resets on stop, exact hand-off between queued buffers).
+- [x] Add `ReadingFollow`: locate chunks in the preview text and snap a progress fraction to a word. Unit-tested at start, whitespace, middle and end positions.
+- [x] Add a Follow reading switch to the developer preview; tint the passage, highlight the word, auto-scroll the paragraph. Setting persists; highlight clears on stop or completion.
+- [ ] Listen once with the preview visible to judge how far the estimated word leads or trails actual speech at 1× and 2×.
+
 ## Worker memory and Models page
 
 - [x] Trace the 49 GB `AltoSpeechWorker` footprint to MLX's unbounded Metal buffer pool: per-chunk tensor shapes defeat reuse, so freed buffers accumulate to the device limit while active model memory stays at 310 MB.
@@ -96,7 +103,7 @@ See [noise investigation](../docs/audio-noise-investigation.md) for measurements
   - Adapt actions to reading: read selection/clipboard, playback controls, player, voice/model access, Settings, and Quit.
   - Ensure toggling the shortcut releases/re-registers it correctly and preserves conflict reporting.
 - [ ] Manually verify all menu actions, shortcut delivery after toggling, voice selection, and light/dark appearance. Settings' General layout has been checked; the full interaction/appearance matrix remains.
-- [x] Use Apple's SF Symbol `play.circle` for the system-bar icon.
+- [x] Use Apple's SF Symbol `play.circle` for the system-bar icon; replaced 2026-09-13 by the speech-bubble SVG glyph rendered as a template image.
 - [x] Test shortcut registration, conflict handling, release, and re-enable; rebuild the app. All 10 unit tests pass.
 
 ## Earlier static investigation (superseded by confirmed cause above)

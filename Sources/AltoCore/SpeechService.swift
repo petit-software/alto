@@ -86,6 +86,31 @@ import AVFoundation
     public var onConsumed: ((Int) -> Void)?
     public var paused = false
     public var rate: Float = 1 { didSet { timePitch.rate = min(2, max(0.5, rate)) } }
+    // Follow-reading bookkeeping: the scheduled buffers still to finish, and
+    // the player sample at which the first of them started.
+    private var queue: [(index: Int, frames: AVAudioFramePosition)] = []
+    private var playingStart: AVAudioFramePosition = 0
+    private var needsStart = false
+    private var lastProgress: (index: Int, fraction: Double)?
+    private var sampleTime: AVAudioFramePosition? {
+        guard player.isPlaying, let nodeTime = player.lastRenderTime, let time = player.playerTime(forNodeTime: nodeTime) else { return nil }
+        return time.sampleTime
+    }
+    private func markStartIfNeeded() {
+        guard needsStart, let now = sampleTime else { return }
+        playingStart = now; needsStart = false
+    }
+    /// The buffer now playing and the fraction of it already rendered. The
+    /// player's sample clock stops while paused, so the value holds; nil before
+    /// the first buffer starts or after stop.
+    public func playingProgress() -> (index: Int, fraction: Double)? {
+        markStartIfNeeded()
+        guard let current = queue.first else { return lastProgress }
+        guard !needsStart, let now = sampleTime else { return lastProgress ?? (current.index, 0) }
+        let fraction = min(1, Double(max(0, now - playingStart)) / Double(max(1, current.frames)))
+        lastProgress = (current.index, fraction)
+        return lastProgress
+    }
     public init() {
         engine.attach(player); engine.attach(timePitch)
         let format = AVAudioFormat(standardFormatWithSampleRate: 24000, channels: 1)!
@@ -102,21 +127,33 @@ import AVFoundation
         if !engine.isRunning { try engine.start() }
         let duration = Double(buffer.frameLength) / file.processingFormat.sampleRate
         bufferedSeconds += duration; queuedCount += 1
+        let frames = AVAudioFramePosition(buffer.frameLength)
+        if queue.isEmpty { needsStart = true }
+        queue.append((index, frames))
         let generation = epoch
         player.scheduleBuffer(buffer, completionCallbackType: .dataPlayedBack) { [weak self] _ in
             Task { @MainActor in
                 guard let self, self.epoch == generation else { return }
                 self.bufferedSeconds = max(0, self.bufferedSeconds - duration)
                 self.queuedCount = max(0, self.queuedCount - 1)
+                if let first = self.queue.first, first.index == index {
+                    self.queue.removeFirst()
+                    // The next buffer began exactly where this one ended.
+                    if !self.queue.isEmpty, !self.needsStart { self.playingStart += frames }
+                } else {
+                    self.queue.removeAll { $0.index == index }
+                }
                 self.onConsumed?(index)
             }
         }
         if !paused && !player.isPlaying { player.play() }
+        markStartIfNeeded()
     }
     public func pause() { paused = true; player.pause() }
-    public func resume() { paused = false; if queuedCount > 0 { player.play() } }
+    public func resume() { paused = false; if queuedCount > 0 { player.play(); markStartIfNeeded() } }
     public func stop() {
         epoch = UUID(); player.stop(); engine.stop()
         bufferedSeconds = 0; queuedCount = 0; paused = false
+        queue = []; playingStart = 0; needsStart = false; lastProgress = nil
     }
 }

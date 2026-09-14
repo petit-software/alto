@@ -54,8 +54,7 @@ public struct AltoSettingsRoot: View {
         services = ServiceProvider { [weak self] pasteboard in self?.app.readService(pasteboard) }
         NSApp.servicesProvider = services
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
-        statusItem.button?.image = NSImage(systemSymbolName: "play.circle", accessibilityDescription: "Alto — Read aloud")
-        statusItem.button?.image?.isTemplate = true
+        statusItem.button?.image = StatusIcon.image()
         statusItem.button?.toolTip = "Alto · \(app.shortcutLabel)"
         let menu = NSMenu(); menu.delegate = self; menu.autoenablesItems = false; statusItem.menu = menu
         permissionTimer = Timer.scheduledTimer(withTimeInterval: 2, repeats: true) { [weak self] _ in
@@ -110,7 +109,7 @@ public struct AltoSettingsRoot: View {
         voiceItem.submenu = voices; voiceItem.isEnabled = !app.voices.isEmpty; menu.addItem(voiceItem)
         add("Models…", action: #selector(showModels), to: menu)
         menu.addItem(.separator())
-        add("Settings…", action: #selector(showSettings), key: ",", to: menu)
+        add("Settings…", action: #selector(showSettings), to: menu)
         add("Quit Alto", action: #selector(quit), key: "q", to: menu)
         menu.addItem(.separator())
         let info = Bundle.main.infoDictionary

@@ -170,13 +170,20 @@ does not constitute a verified permission grant or cross-app selection test.
 
 Verified silently on the installed copy: the Info.plist `NSServices` entry is
 present with the app version intact, `pbs -dump` lists “Listen with Alto” with
-`public.rtf` and `public.utf8-plain-text` send types, and `NSPerformService`
+legacy and UTI plain-text and RTF send types (the UTI-only first build did
+not appear in Chrome's Services submenu), and `NSPerformService`
 from a separate process delivered a whitespace-only pasteboard to the running
 app (return value true, general clipboard change count unchanged). Unit tests
 cover the clutter classifier on a flattened whole-page selection, prose
 pass-through, guardrail fallback, list and footnote survival, a real RTF
 pasteboard round trip with links and an attachment, and the service handoff
 into `AppModel`. No speech was produced.
+
+On 2026-09-14 the item was still absent in Notes; `pbs -dump_cache` showed six
+registered copies of Alto (installed, four preserved previous builds in hidden
+`/Applications/.alto-install.*` folders, and the build output). Removing and
+unregistering the extras left a single provider; the install script no longer
+creates them.
 
 Still manual:
 
@@ -221,7 +228,7 @@ developer verification tool; normal app operation does not require it.
 
 ## Follow-up verification — 2026-09-09
 
-- Clio-style native menu implemented without History or Updates; status icon is the template SF Symbol `play.circle`.
+- Clio-style native menu implemented without History or Updates; status icon was the template SF Symbol `play.circle`; replaced on 2026-09-13 by a speech-bubble glyph drawn from an SVG path as a template image (`StatusIcon`).
 - Settings uses a native SwiftUI Settings scene with General/Reading/About toolbar tabs and Clio's code-native icons. Running General pane captured and visually inspected; full light/dark and interaction checks remain manual.
 - `swift test`: 10 passing tests, including hotkey conflict, release, and re-registration coverage. Actual shortcut event delivery after toggling remains a manual check.
 - Release rebuild and bundled offline integration passed for standard, compact, and imported Kokoro models, including playback, pause/resume, 2× speed, stop, and coordinator cancellation/replacement.

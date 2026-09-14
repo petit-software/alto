@@ -47,6 +47,12 @@ final class AppModel {
     var playerClearGlass: Bool { didSet { defaults.set(playerClearGlass, forKey: "playerClearGlass") } }
     var clipboardFallback: Bool { didSet { defaults.set(clipboardFallback, forKey: "clipboardFallback") } }
     var skipPageClutter: Bool { didSet { defaults.set(skipPageClutter, forKey: "skipPageClutter") } }
+    var followReading: Bool {
+        didSet { defaults.set(followReading, forKey: "followReading"); if !followReading { readingHighlight = nil } }
+    }
+    private(set) var readingHighlight: ReadingHighlight?
+    private var chunkRanges: [Range<String.Index>] = []
+    private var followTask: Task<Void, Never>?
     var shortcutLabel: String { didSet { defaults.set(shortcutLabel, forKey: "shortcutLabel") } }
     private(set) var shortcutEnabled: Bool
     var keyCode: UInt32
@@ -102,6 +108,7 @@ final class AppModel {
         playerClearGlass = defaults.bool(forKey: "playerClearGlass")
         clipboardFallback = defaults.object(forKey: "clipboardFallback") == nil ? true : defaults.bool(forKey: "clipboardFallback")
         skipPageClutter = defaults.object(forKey: "skipPageClutter") == nil ? true : defaults.bool(forKey: "skipPageClutter")
+        followReading = defaults.object(forKey: "followReading") == nil ? true : defaults.bool(forKey: "followReading")
         shortcutLabel = defaults.string(forKey: "shortcutLabel") ?? "⌥ Space"
         shortcutEnabled = defaults.object(forKey: "shortcutEnabled") as? Bool ?? true
         keyCode = UInt32(defaults.object(forKey: "keyCode") as? Int ?? 49)
@@ -215,9 +222,16 @@ final class AppModel {
         voicePath = voice.path
         sentences = chunks; totalSentences = chunks.count; currentSentence = 0
         readingText = previewText ?? chunks.joined(separator: "\n\n")
+        chunkRanges = ReadingFollow.locate(chunks, in: readingText)
         generation = .loading; playback = paused ? .paused : .playing; audio.paused = paused
         let token = session
         showPlayer?()
+        followTask = Task { [weak self] in
+            while !Task.isCancelled {
+                self?.refreshHighlight()
+                try? await Task.sleep(for: .milliseconds(100))
+            }
+        }
         task = Task {
             do {
                 var pending = chunks
@@ -236,6 +250,7 @@ final class AppModel {
                             let smaller = TextChunker.split(pending[index], limit: pending[index].count / 2)
                             pending.replaceSubrange(index...index, with: smaller)
                             sentences = pending; totalSentences = pending.count
+                            chunkRanges = ReadingFollow.locate(pending, in: readingText)
                             continue
                         }
                         throw error
@@ -254,11 +269,19 @@ final class AppModel {
             }
         }
     }
+    private func refreshHighlight() {
+        guard followReading, let progress = audio.playingProgress(), progress.index < chunkRanges.count else { return }
+        let next = ReadingFollow.highlight(in: readingText, chunk: chunkRanges[progress.index], fraction: progress.fraction)
+        if next != readingHighlight { readingHighlight = next }
+    }
+    private func clearFollow() {
+        followTask?.cancel(); followTask = nil; readingHighlight = nil; chunkRanges = []
+    }
     private func finishIfDrained() {
         guard generation == .finished, audio.queuedCount == 0 else { return }
         generation = .idle; playback = .stopped
         sentences = []; totalSentences = 0; currentSentence = 0
-        readingText = ""
+        readingText = ""; clearFollow()
         hidePlayer?()
         cleanupTask = Task { try? await Task.sleep(for: .seconds(60)); if !Task.isCancelled { speech.unload() } }
     }
@@ -306,7 +329,7 @@ final class AppModel {
         session = UUID(); task?.cancel(); task = nil; cleanupTask?.cancel(); cleanupTask = nil
         audio.stop(); if !keepWorker { speech.unload() }; generation = .idle; playback = .stopped
         sentences = []; totalSentences = 0; currentSentence = 0; message = nil
-        readingText = ""
+        readingText = ""; clearFollow()
     }
     func shutdown() { stop(); captureTask?.cancel(); models.cancelAll(); hotkey.unregister() }
     func openTextReader() {
