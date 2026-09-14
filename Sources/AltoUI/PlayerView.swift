@@ -112,7 +112,9 @@ final class PreviewText: NSTextView {
 }
 
 /// Read-only AppKit text so the word being read can be scrolled into view
-/// with a minimal move, which SwiftUI's Text cannot do for a substring.
+/// with a minimal move, which SwiftUI's Text cannot do for a substring. The
+/// marker is a separate layer behind the text that glides between words;
+/// text outside the passage being read is dimmed.
 struct PreviewTextView: NSViewRepresentable {
     let text: String
     let highlight: ReadingHighlight?
@@ -122,6 +124,8 @@ struct PreviewTextView: NSViewRepresentable {
         var chunk = NSRange(location: 0, length: 0)
         var word = NSRange(location: 0, length: 0)
         var scrolledTo: NSRange?
+        let marker = NSView()
+        var markerShown = false
     }
     func makeCoordinator() -> Coordinator { Coordinator() }
     func makeNSView(context: Context) -> NSScrollView {
@@ -146,6 +150,11 @@ struct PreviewTextView: NSViewRepresentable {
         scroll.verticalScroller?.controlSize = .mini
         scroll.borderType = .noBorder
         scroll.documentView = view
+        let marker = context.coordinator.marker
+        marker.wantsLayer = true
+        marker.layer?.backgroundColor = NSColor(Color.altoMarker).cgColor
+        marker.isHidden = true
+        scroll.contentView.addSubview(marker, positioned: .below, relativeTo: view)
         return scroll
     }
     func updateNSView(_ scroll: NSScrollView, context: Context) {
@@ -156,38 +165,65 @@ struct PreviewTextView: NSViewRepresentable {
         // A slim overlay scroller, kept clear of the panel's bottom and right edges.
         scroll.scrollerInsets = NSEdgeInsets(top: 0, left: 0, bottom: 10 * scale, right: 10 * scale)
         let state = context.coordinator
+        state.marker.layer?.cornerRadius = 3 * scale
         if view.string != text || view.font != font {
             storage.setAttributedString(NSAttributedString(string: text, attributes: [.font: font, .foregroundColor: NSColor.labelColor]))
             view.font = font
             state.chunk = NSRange(location: 0, length: 0); state.word = state.chunk; state.scrolledTo = nil
+            state.marker.isHidden = true; state.markerShown = false
         }
         let chunk = highlight.map { NSRange($0.chunk, in: text) } ?? NSRange(location: 0, length: 0)
         let word = highlight.map { NSRange($0.word, in: text) } ?? NSRange(location: 0, length: 0)
-        if chunk != state.chunk || word != state.word {
-            storage.beginEditing()
-            for old in [state.chunk, state.word] where old.length > 0 {
-                storage.removeAttribute(.backgroundColor, range: old)
-                storage.addAttribute(.foregroundColor, value: NSColor.labelColor, range: old)
-            }
-            if chunk.length > 0 { storage.addAttribute(.backgroundColor, value: NSColor(Color.altoAccent).withAlphaComponent(0.28), range: chunk) }
-            if word.length > 0 {
-                storage.addAttribute(.backgroundColor, value: NSColor(Color.altoMarker), range: word)
-                storage.addAttribute(.foregroundColor, value: NSColor.black.withAlphaComponent(0.9), range: word)
-            }
-            storage.endEditing()
-            state.chunk = chunk; state.word = word
+        guard chunk != state.chunk || word != state.word else { return }
+        let full = NSRange(location: 0, length: storage.length)
+        storage.beginEditing()
+        // Spotlight: the passage being read keeps full contrast, the rest dims.
+        storage.addAttribute(.foregroundColor, value: chunk.length > 0 ? NSColor.secondaryLabelColor : NSColor.labelColor, range: full)
+        if chunk.length > 0 { storage.addAttribute(.foregroundColor, value: NSColor.labelColor, range: chunk) }
+        storage.endEditing()
+        state.chunk = chunk; state.word = word
+        if follow, word.length > 0, state.scrolledTo != word {
+            state.scrolledTo = word
+            Self.reveal(word, in: view, scroll: scroll)
         }
-        guard follow, word.length > 0, state.scrolledTo != word else { return }
-        state.scrolledTo = word
-        Self.reveal(word, in: view, scroll: scroll)
+        Self.moveMarker(to: word, in: view, scroll: scroll, state: state, scale: scale)
+    }
+    /// Glides the marker from the previous word to the next; the word's dark
+    /// text is applied once the marker has arrived, so it never sits unreadable
+    /// on the plain background mid-slide.
+    static func moveMarker(to word: NSRange, in view: PreviewText, scroll: NSScrollView, state: Coordinator, scale: CGFloat) {
+        let marker = state.marker
+        guard word.length > 0, let rect = wordRect(word, in: view) else {
+            marker.isHidden = true; state.markerShown = false; return
+        }
+        let target = view.convert(rect, to: scroll.contentView).insetBy(dx: -2 * scale, dy: -1 * scale)
+        let settle = {
+            guard state.word == word, let storage = view.textStorage else { return }
+            storage.addAttribute(.foregroundColor, value: NSColor.black.withAlphaComponent(0.9), range: word)
+        }
+        let reduceMotion = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
+        if !state.markerShown || reduceMotion {
+            marker.frame = target; marker.isHidden = false; state.markerShown = true
+            settle(); return
+        }
+        NSAnimationContext.runAnimationGroup({ context in
+            context.duration = 0.14
+            context.timingFunction = CAMediaTimingFunction(name: .easeOut)
+            marker.animator().frame = target
+        }, completionHandler: settle)
+    }
+    static func wordRect(_ range: NSRange, in view: NSTextView) -> NSRect? {
+        guard let layout = view.layoutManager, let container = view.textContainer else { return nil }
+        let glyphs = layout.glyphRange(forCharacterRange: range, actualCharacterRange: nil)
+        var rect = layout.boundingRect(forGlyphRange: glyphs, in: container)
+        rect.origin.x += view.textContainerInset.width
+        rect.origin.y += view.textContainerInset.height
+        return rect
     }
     /// Scrolls only when the word's line is outside the comfortable band, and
     /// then places it a third of the way down rather than at the very edge.
     static func reveal(_ range: NSRange, in view: NSTextView, scroll: NSScrollView) {
-        guard let layout = view.layoutManager, let container = view.textContainer else { return }
-        let glyphs = layout.glyphRange(forCharacterRange: range, actualCharacterRange: nil)
-        var line = layout.boundingRect(forGlyphRange: glyphs, in: container)
-        line.origin.y += view.textContainerInset.height
+        guard let line = wordRect(range, in: view) else { return }
         let clip = scroll.contentView
         let visible = clip.bounds
         let band = visible.insetBy(dx: 0, dy: min(line.height, visible.height / 4))

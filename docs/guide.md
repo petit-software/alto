@@ -27,7 +27,7 @@ choices (Hidden, six edge positions, Near cursor), Default/1.25×/1.5× sizing,
 Translucency and Clear glass. Position affects the standalone player; size and
 glass apply to both. Hidden keeps playback running with controls in the menu.
 A scrollable **Preview** panel above the pill shows the captured text being read.
-Its **Follow** switch tints the passage being played and highlights the
+Its **Follow** switch keeps the passage being played at full contrast, dims the rest, and slides a marker to the
 word Alto is estimated to be on, scrolling the preview along. The speech model
 gives no word timings, so the word is derived from how much of the passage's
 audio has played, mapped onto its characters; expect it to lead or trail by a
