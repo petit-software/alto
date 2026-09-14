@@ -40,7 +40,15 @@ mv "$staging_dir/Alto.app" /Applications/Alto.app
 "$lsregister" -f /Applications/Alto.app >/dev/null 2>&1 || true
 /System/Library/CoreServices/pbs -flush || true
 /System/Library/CoreServices/pbs -update || true
+# macOS leaves new third-party services unchecked in Keyboard Shortcuts → Services.
+# This is the developer's machine: tick "Listen with Alto" the way the checkbox does.
+defaults write pbs NSServicesStatus -dict-add "Alto - Listen with Alto - listenWithAlto" \
+  '{ "presentation_modes" = { ContextMenu = 1; ServicesMenu = 1; TouchBar = 1; }; }' || true
 rm -rf "$staging_dir"
+# Spotlight re-registers dist/Alto.app after every build, making it a second
+# provider of the service. The installed copy is the deliverable; package-dmg.sh
+# rebuilds its own bundle.
+rm -rf dist/Alto.app
 open /Applications/Alto.app
 for attempt in {1..50}; do
   if pgrep -f '^/Applications/Alto.app/Contents/MacOS/Alto( |$)' >/dev/null; then

@@ -184,6 +184,11 @@ registered copies of Alto (installed, four preserved previous builds in hidden
 `/Applications/.alto-install.*` folders, and the build output). Removing and
 unregistering the extras left a single provider; the install script no longer
 creates them.
+With a single provider the item was still absent. The user found it listed but
+unchecked in System Settings → Keyboard → Keyboard Shortcuts → Services: new
+third-party services are disabled by default. Enabling it (the install script
+now writes the `pbs` status entry on the developer's machine) is the fix; end
+users tick the box once.
 
 Still manual:
 

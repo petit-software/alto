@@ -74,70 +74,130 @@ struct ReadingPreview: View {
     let scale: CGFloat
     var highlight: ReadingHighlight? = nil
     var follow: Binding<Bool> = .constant(false)
-    private var paragraphs: [(id: Int, range: Range<String.Index>)] {
-        var result: [(id: Int, range: Range<String.Index>)] = []
-        var start = text.startIndex
-        while true {
-            let end = text[start...].firstIndex(of: "\n") ?? text.endIndex
-            result.append((result.count, start..<end))
-            if end == text.endIndex { break }
-            start = text.index(after: end)
-        }
-        return result
-    }
     var body: some View {
-        VStack(alignment: .leading, spacing: 8 * scale) {
+        VStack(alignment: .leading, spacing: 6 * scale) {
             HStack {
-                Label("Developer preview · Captured text", systemImage: "text.alignleft")
-                    .font(.system(size: 10 * scale, weight: .semibold))
+                Text("Preview")
+                    .font(.system(size: 11 * scale, weight: .semibold))
                     .foregroundStyle(.secondary)
                 Spacer(minLength: 8)
-                Toggle("Follow reading", isOn: follow)
+                Toggle("Follow", isOn: follow)
                     .toggleStyle(.switch).controlSize(.mini)
                     .font(.system(size: 10 * scale)).foregroundStyle(.secondary)
                     .help("Highlight the passage and word being read")
+                    .accessibilityLabel("Follow reading")
             }
-            ScrollViewReader { proxy in
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 0) {
-                        ForEach(paragraphs, id: \.id) { paragraph in
-                            Text(attributed(paragraph.range))
-                                .font(.system(size: 12 * scale))
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .fixedSize(horizontal: false, vertical: true)
-                                .id(paragraph.id)
-                        }
-                    }
-                    .accessibilityElement(children: .ignore)
-                    .accessibilityLabel("Text to be read")
-                    .accessibilityValue(text)
-                }.frame(height: 120 * scale)
-                    .onChange(of: highlight?.word.lowerBound) { _, position in
-                        guard follow.wrappedValue, let position,
-                              let paragraph = paragraphs.first(where: { $0.range.contains(position) || $0.range.upperBound == position }) else { return }
-                        withAnimation(.easeOut(duration: 0.2)) { proxy.scrollTo(paragraph.id, anchor: .center) }
-                    }
-            }
+            .padding(.horizontal, 12 * scale).padding(.top, 12 * scale)
+            // The text runs to the panel's bottom edge; its inset keeps glyphs off the corners.
+            PreviewTextView(text: text, highlight: highlight, follow: follow.wrappedValue, scale: scale)
+                .frame(height: 120 * scale)
         }
-        .padding(12 * scale)
         .frame(width: 320 * scale)
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 14 * scale))
+        .clipShape(RoundedRectangle(cornerRadius: 14 * scale))
         .overlay(RoundedRectangle(cornerRadius: 14 * scale).strokeBorder(.primary.opacity(0.15), lineWidth: 0.5))
         .shadow(color: .black.opacity(0.12), radius: 8, y: 3)
     }
-    private func attributed(_ range: Range<String.Index>) -> AttributedString {
-        var attributed = AttributedString(text[range])
-        guard let highlight else { return attributed }
-        func apply(_ target: Range<String.Index>, _ color: Color) {
-            let lower = max(target.lowerBound, range.lowerBound), upper = min(target.upperBound, range.upperBound)
-            guard lower < upper else { return }
-            let start = attributed.index(attributed.startIndex, offsetByCharacters: text.distance(from: range.lowerBound, to: lower))
-            let end = attributed.index(attributed.startIndex, offsetByCharacters: text.distance(from: range.lowerBound, to: upper))
-            attributed[start..<end].backgroundColor = color
+}
+
+/// Text whose container stops short of the right edge, so lines never run
+/// under the overlay scroller.
+final class PreviewText: NSTextView {
+    var trailingInset: CGFloat = 0 { didSet { setFrameSize(frame.size) } }
+    override func setFrameSize(_ newSize: NSSize) {
+        super.setFrameSize(newSize)
+        textContainer?.size = NSSize(width: max(1, newSize.width - textContainerInset.width * 2 - trailingInset),
+                                     height: CGFloat.greatestFiniteMagnitude)
+    }
+}
+
+/// Read-only AppKit text so the word being read can be scrolled into view
+/// with a minimal move, which SwiftUI's Text cannot do for a substring.
+struct PreviewTextView: NSViewRepresentable {
+    let text: String
+    let highlight: ReadingHighlight?
+    let follow: Bool
+    let scale: CGFloat
+    final class Coordinator {
+        var chunk = NSRange(location: 0, length: 0)
+        var word = NSRange(location: 0, length: 0)
+        var scrolledTo: NSRange?
+    }
+    func makeCoordinator() -> Coordinator { Coordinator() }
+    func makeNSView(context: Context) -> NSScrollView {
+        let storage = NSTextStorage()
+        let layout = NSLayoutManager()
+        let container = NSTextContainer(size: NSSize(width: 0, height: CGFloat.greatestFiniteMagnitude))
+        container.widthTracksTextView = false
+        container.lineFragmentPadding = 0
+        storage.addLayoutManager(layout); layout.addTextContainer(container)
+        let view = PreviewText(frame: .zero, textContainer: container)
+        view.isEditable = false; view.isSelectable = false
+        view.drawsBackground = false
+        view.isVerticallyResizable = true; view.isHorizontallyResizable = false
+        view.autoresizingMask = [.width]
+        view.minSize = .zero
+        view.maxSize = NSSize(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude)
+        view.setAccessibilityLabel("Text to be read")
+        let scroll = NSScrollView()
+        scroll.drawsBackground = false
+        scroll.hasVerticalScroller = true; scroll.autohidesScrollers = true
+        scroll.scrollerStyle = .overlay
+        scroll.verticalScroller?.controlSize = .mini
+        scroll.borderType = .noBorder
+        scroll.documentView = view
+        return scroll
+    }
+    func updateNSView(_ scroll: NSScrollView, context: Context) {
+        guard let view = scroll.documentView as? PreviewText, let storage = view.textStorage else { return }
+        let font = NSFont.systemFont(ofSize: 12 * scale)
+        view.textContainerInset = NSSize(width: 12 * scale, height: 6 * scale)
+        view.trailingInset = 6 * scale
+        // A slim overlay scroller, kept clear of the panel's bottom and right edges.
+        scroll.scrollerInsets = NSEdgeInsets(top: 0, left: 0, bottom: 10 * scale, right: 10 * scale)
+        let state = context.coordinator
+        if view.string != text || view.font != font {
+            storage.setAttributedString(NSAttributedString(string: text, attributes: [.font: font, .foregroundColor: NSColor.labelColor]))
+            view.font = font
+            state.chunk = NSRange(location: 0, length: 0); state.word = state.chunk; state.scrolledTo = nil
         }
-        apply(highlight.chunk, Color.altoAccent.opacity(0.14))
-        apply(highlight.word, Color.altoAccent.opacity(0.5))
-        return attributed
+        let chunk = highlight.map { NSRange($0.chunk, in: text) } ?? NSRange(location: 0, length: 0)
+        let word = highlight.map { NSRange($0.word, in: text) } ?? NSRange(location: 0, length: 0)
+        if chunk != state.chunk || word != state.word {
+            storage.beginEditing()
+            for old in [state.chunk, state.word] where old.length > 0 {
+                storage.removeAttribute(.backgroundColor, range: old)
+                storage.addAttribute(.foregroundColor, value: NSColor.labelColor, range: old)
+            }
+            if chunk.length > 0 { storage.addAttribute(.backgroundColor, value: NSColor(Color.altoAccent).withAlphaComponent(0.28), range: chunk) }
+            if word.length > 0 {
+                storage.addAttribute(.backgroundColor, value: NSColor(Color.altoMarker), range: word)
+                storage.addAttribute(.foregroundColor, value: NSColor.black.withAlphaComponent(0.9), range: word)
+            }
+            storage.endEditing()
+            state.chunk = chunk; state.word = word
+        }
+        guard follow, word.length > 0, state.scrolledTo != word else { return }
+        state.scrolledTo = word
+        Self.reveal(word, in: view, scroll: scroll)
+    }
+    /// Scrolls only when the word's line is outside the comfortable band, and
+    /// then places it a third of the way down rather than at the very edge.
+    static func reveal(_ range: NSRange, in view: NSTextView, scroll: NSScrollView) {
+        guard let layout = view.layoutManager, let container = view.textContainer else { return }
+        let glyphs = layout.glyphRange(forCharacterRange: range, actualCharacterRange: nil)
+        var line = layout.boundingRect(forGlyphRange: glyphs, in: container)
+        line.origin.y += view.textContainerInset.height
+        let clip = scroll.contentView
+        let visible = clip.bounds
+        let band = visible.insetBy(dx: 0, dy: min(line.height, visible.height / 4))
+        guard line.minY < band.minY || line.maxY > band.maxY else { return }
+        let target = max(0, min(line.minY - visible.height / 3, view.frame.height - visible.height))
+        NSAnimationContext.runAnimationGroup { context in
+            context.duration = 0.2
+            clip.animator().setBoundsOrigin(NSPoint(x: visible.minX, y: target))
+        }
+        scroll.reflectScrolledClipView(clip)
     }
 }
 
@@ -201,4 +261,5 @@ private final class PlayerHostingView: NSHostingView<PlayerView> {
 
 extension Color {
     static let altoAccent = Color(red: 0.37, green: 0.43, blue: 0.25)
+    static let altoMarker = Color(red: 1.0, green: 0.82, blue: 0.2)
 }

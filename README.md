@@ -11,8 +11,9 @@ Open Alto and download a voice model in **Settings → Models**. Then read text
 in any of three ways:
 
 - **Right-click → Services → Listen with Alto.** Works in any app with a
-  Services menu and needs no permissions. Whole-page selections are cleaned of
-  navigation, captions, forms and footers before reading.
+  Services menu and needs no permissions. Tick it once in System Settings →
+  Keyboard → Keyboard Shortcuts → Services. Whole-page selections are cleaned
+  of navigation, captions, forms and footers before reading.
 - **Select text and press Option–Space.** Needs Alto enabled in
   **System Settings → Privacy & Security → Accessibility**. The shortcut is
   configurable.
@@ -31,7 +32,7 @@ Markup and emojis are skipped. No reading history, no telemetry.
 Use full Xcode with its Metal toolchain and Swift 6.2 or newer.
 
 ```sh
-./scripts/install-app.sh   # build, install to /Applications, launch
+./scripts/install-app.sh   # build, install to /Applications, launch (removes dist/Alto.app)
 ./scripts/build-app.sh     # bundle only, in dist/Alto.app
 swift test                 # silent unit tests
 ```

@@ -26,8 +26,8 @@ the player. **Settings → Reading → Player Appearance** offers Clio-style pos
 choices (Hidden, six edge positions, Near cursor), Default/1.25×/1.5× sizing,
 Translucency and Clear glass. Position affects the standalone player; size and
 glass apply to both. Hidden keeps playback running with controls in the menu.
-A scrollable developer preview above the pill shows the captured text being read.
-Its **Follow reading** switch tints the passage being played and highlights the
+A scrollable **Preview** panel above the pill shows the captured text being read.
+Its **Follow** switch tints the passage being played and highlights the
 word Alto is estimated to be on, scrolling the preview along. The speech model
 gives no word timings, so the word is derived from how much of the passage's
 audio has played, mapped onto its characters; expect it to lead or trail by a
@@ -54,10 +54,15 @@ Reading → Skip page clutter** on (the default), navigation links, share
 prompts, image captions, newsletter forms and legal footers are dropped and
 only the article prose and its headings are read; the same filter applies to
 Read Clipboard and Paste. Short selections and ordinary prose pass through
-unchanged, and the developer preview shows exactly what will be read. If the
-item is missing, enable it in System Settings → Keyboard → Keyboard Shortcuts
-→ Services, where you can also give it a shortcut. Some cross-platform apps
-have no Services menu; use Read Clipboard there.
+unchanged, and the Preview panel shows exactly what will be read.
+
+macOS lists new third-party services but leaves them unchecked, so the item is
+hidden until you enable it once: open System Settings → Keyboard → Keyboard
+Shortcuts → Services, find **Listen with Alto** under Text, and tick it. You
+can give it a shortcut there too. Apps read the service list when they launch,
+so quit and reopen an app that was already running. Some cross-platform apps
+have no Services submenu in their right-click menu; use the app menu → Services
+or Read Clipboard there.
 
 **Read Text…** in the menu opens a dedicated paste window with the player at the
 bottom. Press Play to read; X or closing the window stops reading and clears the

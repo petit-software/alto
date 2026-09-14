@@ -92,6 +92,12 @@ Option A details:
   If Alto is not running, macOS launches it and delivers the request after
   launch, so the provider must be installed before the diagnostic early returns
   in that method finish, and before setup prompts.
+- New third-party services are listed but **unchecked** in System Settings →
+  Keyboard → Keyboard Shortcuts → Services on macOS 26, so the item stays out
+  of every menu until the user ticks it. There is no API for an app to enable
+  its own service. `install-app.sh` writes the `pbs` `NSServicesStatus` entry
+  on the developer's machine; end users need the one-time checkbox, which the
+  guide and README now state up front.
 - Exactly one copy of Alto may be registered. `install-app.sh` used to keep
   the previous build in a hidden `/Applications/.alto-install.*` folder, and
   LaunchServices scans those, so `pbs -dump_cache` listed six providers for
@@ -99,6 +105,8 @@ Option A details:
   app's Services submenu. The script now stages in `/private/tmp`,
   unregisters the previous copy and the build and `dist` bundles, and flushes
   `pbs`.
+  Spotlight re-registers `dist/Alto.app` after every build regardless, so
+  the script now deletes it once the install succeeds.
 - LaunchServices registers services when the bundle lands in `/Applications`.
   During development, `lsregister -f /Applications/Alto.app` and
   `/System/Library/CoreServices/pbs -update` refresh the registry; `pbs -dump`
