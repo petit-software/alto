@@ -53,7 +53,8 @@ public struct AltoSettingsRoot: View {
         app.hidePlayer = { [weak self] in self?.player.hide() }
         services = ServiceProvider { [weak self] pasteboard in self?.app.readService(pasteboard) }
         NSApp.servicesProvider = services
-        statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
+        // The glyph is wider than the square slot; let the item fit the image.
+        statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         statusItem.button?.image = StatusIcon.image()
         statusItem.button?.toolTip = "Alto · \(app.shortcutLabel)"
         let menu = NSMenu(); menu.delegate = self; menu.autoenablesItems = false; statusItem.menu = menu

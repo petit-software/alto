@@ -358,21 +358,22 @@ final class StatusIconTests: XCTestCase {
     @MainActor func testMenuBarGlyphIsTemplateWithWavesAndDot() throws {
         let image = StatusIcon.image()
         XCTAssertTrue(image.isTemplate)
-        XCTAssertEqual(image.size, NSSize(width: 25, height: 15))
-        let bitmap = try XCTUnwrap(NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: 250, pixelsHigh: 150, bitsPerSample: 8,
+        XCTAssertEqual(image.size, NSSize(width: 27, height: 15))
+        let bitmap = try XCTUnwrap(NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: 270, pixelsHigh: 150, bitsPerSample: 8,
             samplesPerPixel: 4, hasAlpha: true, isPlanar: false, colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 0))
         NSGraphicsContext.saveGraphicsState()
         NSGraphicsContext.current = NSGraphicsContext(bitmapImageRep: bitmap)
-        image.draw(in: NSRect(x: 0, y: 0, width: 250, height: 150))
+        image.draw(in: NSRect(x: 0, y: 0, width: 270, height: 150))
         NSGraphicsContext.restoreGraphicsState()
         func alpha(_ x: Int, _ yFromTop: Int) -> CGFloat { bitmap.colorAt(x: x, y: yFromTop)?.alphaComponent ?? 0 }
-        XCTAssertGreaterThan(alpha(123, 73), 0.9, "centre dot is solid")
-        XCTAssertGreaterThan(alpha(64, 73), 0.9, "inner left wave")
-        XCTAssertGreaterThan(alpha(183, 73), 0.9, "inner right wave")
-        XCTAssertGreaterThan(alpha(13, 73), 0.9, "outer left wave")
-        XCTAssertGreaterThan(alpha(233, 73), 0.9, "outer right wave")
-        XCTAssertLessThan(alpha(88, 73), 0.1, "gap between wave and dot")
-        XCTAssertLessThan(alpha(5, 5), 0.1, "corner is clear")
+        XCTAssertGreaterThan(alpha(133, 73), 0.9, "centre dot is solid")
+        XCTAssertGreaterThan(alpha(74, 73), 0.9, "inner left wave")
+        XCTAssertGreaterThan(alpha(193, 73), 0.9, "inner right wave")
+        XCTAssertGreaterThan(alpha(23, 73), 0.9, "outer left wave")
+        XCTAssertGreaterThan(alpha(243, 73), 0.9, "outer right wave")
+        XCTAssertLessThan(alpha(98, 73), 0.1, "gap between wave and dot")
+        XCTAssertLessThan(alpha(2, 73), 0.1, "left margin is clear")
+        XCTAssertLessThan(alpha(267, 73), 0.1, "right margin is clear")
     }
 }
 
