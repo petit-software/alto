@@ -85,8 +85,9 @@ struct SettingsView: View {
                         }
                     }
                     Toggle("Clear glass", isOn: $app.playerClearGlass)
+                    Toggle("Show preview", isOn: $app.showPreview)
                 } header: { Text("Player Appearance") } footer: {
-                    Text("Position applies to the floating reader. Size and glass apply to both players. Lower values mean less tint. Regular glass adapts text contrast to the background; Clear glass removes frosting but offers less contrast protection. Hidden leaves playback controls in the menu.")
+                    Text("Position applies to the floating reader. Size and glass apply to both players. Lower values mean less tint. Regular glass adapts text contrast to the background; Clear glass removes frosting but offers less contrast protection. Hidden leaves playback controls in the menu. Preview shows the text being read above the floating player, with a Follow switch that tracks the current word.")
                         .font(.caption).foregroundStyle(.secondary)
                 }
                 Section {

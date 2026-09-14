@@ -4,6 +4,7 @@ Updated: 2026-09-13. Radio-noise cause reproduced and fixed in the worker; 24 sp
 
 ## Listen with Alto service — 2026-09-13
 
+- [ ] Add GH relese support with Spark
 - [x] Add an `NSServices` entry (generated `Support/Info.plist` via `project.yml`), a `ServiceProvider` set as `NSApp.servicesProvider`, and `AppModel.readService` that reads the private service pasteboard through the existing reading path. The general clipboard is never written.
 - [x] Add `PageText`: plain-text block classification (navigation runs, menu phrases, dates, read times, captions, cookie and legal text), heading preservation, duplicate removal, a fallback guardrail, and RTF link density with attachment removal.
 - [x] Add Settings → Reading → Skip page clutter (default on) governing the service, Read Clipboard and Paste; the shortcut path is unchanged.

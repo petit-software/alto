@@ -395,9 +395,14 @@ final class FollowReadingTests: XCTestCase {
         let app = AppModel(modelStore: ModelStore(root: root), preferences: preferences, registerHotkey: false)
         defer { app.shutdown(); preferences.removePersistentDomain(forName: suite); try? FileManager.default.removeItem(at: root) }
         XCTAssertTrue(app.followReading)
+        XCTAssertTrue(app.showPreview)
         XCTAssertNil(app.readingHighlight)
         app.followReading = false
-        XCTAssertFalse(AppModel(modelStore: app.models, preferences: preferences, registerHotkey: false).followReading)
+        app.showPreview = false
+        let reopened = AppModel(modelStore: app.models, preferences: preferences, registerHotkey: false)
+        XCTAssertFalse(reopened.followReading)
+        XCTAssertFalse(reopened.showPreview)
+        reopened.shutdown()
         XCTAssertNil(app.audio.playingProgress())
     }
 }

@@ -16,7 +16,7 @@ struct PlayerView: View {
     var body: some View {
         VStack(spacing: 10 * scale) {
             if !embedded, app.playerPosition.isTop { pill }
-            if !embedded, !app.readingText.isEmpty {
+            if !embedded, app.showPreview, !app.readingText.isEmpty {
                 ReadingPreview(text: app.readingText, scale: scale, highlight: app.readingHighlight,
                                follow: Binding(get: { app.followReading }, set: { app.followReading = $0 }))
             }
@@ -149,6 +149,7 @@ struct PreviewTextView: NSViewRepresentable {
         scroll.scrollerStyle = .overlay
         scroll.verticalScroller?.controlSize = .mini
         scroll.borderType = .noBorder
+        scroll.wantsLayer = true
         scroll.documentView = view
         let marker = context.coordinator.marker
         marker.wantsLayer = true
@@ -167,8 +168,14 @@ struct PreviewTextView: NSViewRepresentable {
         let state = context.coordinator
         state.marker.layer?.cornerRadius = 3 * scale
         if view.string != text || view.font != font {
+            // New text replacing a reading crossfades in place of a hard swap.
+            if !view.string.isEmpty, !text.isEmpty, !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion {
+                let fade = CATransition(); fade.type = .fade; fade.duration = 0.3
+                scroll.layer?.add(fade, forKey: "replace")
+            }
             storage.setAttributedString(NSAttributedString(string: text, attributes: [.font: font, .foregroundColor: NSColor.labelColor]))
             view.font = font
+            scroll.contentView.scroll(to: .zero); scroll.reflectScrolledClipView(scroll.contentView)
             state.chunk = NSRange(location: 0, length: 0); state.word = state.chunk; state.scrolledTo = nil
             state.marker.isHidden = true; state.markerShown = false
         }

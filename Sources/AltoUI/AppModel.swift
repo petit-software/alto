@@ -47,6 +47,9 @@ final class AppModel {
     var playerClearGlass: Bool { didSet { defaults.set(playerClearGlass, forKey: "playerClearGlass") } }
     var clipboardFallback: Bool { didSet { defaults.set(clipboardFallback, forKey: "clipboardFallback") } }
     var skipPageClutter: Bool { didSet { defaults.set(skipPageClutter, forKey: "skipPageClutter") } }
+    var showPreview: Bool {
+        didSet { defaults.set(showPreview, forKey: "showPreview"); if hasReading { showPlayer?() } }
+    }
     var followReading: Bool {
         didSet { defaults.set(followReading, forKey: "followReading"); if !followReading { readingHighlight = nil } }
     }
@@ -109,6 +112,7 @@ final class AppModel {
         clipboardFallback = defaults.object(forKey: "clipboardFallback") == nil ? true : defaults.bool(forKey: "clipboardFallback")
         skipPageClutter = defaults.object(forKey: "skipPageClutter") == nil ? true : defaults.bool(forKey: "skipPageClutter")
         followReading = defaults.object(forKey: "followReading") == nil ? true : defaults.bool(forKey: "followReading")
+        showPreview = defaults.object(forKey: "showPreview") == nil ? true : defaults.bool(forKey: "showPreview")
         shortcutLabel = defaults.string(forKey: "shortcutLabel") ?? "⌥ Space"
         shortcutEnabled = defaults.object(forKey: "shortcutEnabled") as? Bool ?? true
         keyCode = UInt32(defaults.object(forKey: "keyCode") as? Int ?? 49)
@@ -171,8 +175,11 @@ final class AppModel {
     }
     func readSelection(from pid: pid_t) {
         guard captureTask == nil else { return }
-        stop(keepWorker: generation == .idle)
-        hidePlayer?()
+        // Replacing a reading keeps the player and preview on screen: the old
+        // audio stops now, the preview crossfades once the new text arrives.
+        let replacing = hasReading
+        stop(keepWorker: generation == .idle, keepPreview: replacing)
+        if !replacing { hidePlayer?() }
         generation = .capturing
         let token = session
         captureTask = Task {
@@ -217,11 +224,12 @@ final class AppModel {
         if !isTextReaderOpen { showWindow?() }
     }
     private func start(_ chunks: [String], model: ModelDescriptor, paused: Bool = false, previewText: String? = nil) {
-        stop(keepWorker: generation == .idle || generation == .capturing)
+        stop(keepWorker: generation == .idle || generation == .capturing, keepPreview: hasReading)
         guard let weight = model.weight, let voice = model.voices.first(where: { $0.path == voicePath }) ?? model.voices.first else { return }
         voicePath = voice.path
         sentences = chunks; totalSentences = chunks.count; currentSentence = 0
         readingText = previewText ?? chunks.joined(separator: "\n\n")
+        readingHighlight = nil
         chunkRanges = ReadingFollow.locate(chunks, in: readingText)
         generation = .loading; playback = paused ? .paused : .playing; audio.paused = paused
         let token = session
@@ -324,12 +332,17 @@ final class AppModel {
             if preferredID == model.id { preferredID = models.installed.first?.id ?? "kokoro-standard" }
         } catch { message = error.localizedDescription }
     }
-    func stop(keepWorker: Bool = false) {
+    func stop(keepWorker: Bool = false, keepPreview: Bool = false) {
         captureTask?.cancel()
         session = UUID(); task?.cancel(); task = nil; cleanupTask?.cancel(); cleanupTask = nil
         audio.stop(); if !keepWorker { speech.unload() }; generation = .idle; playback = .stopped
-        sentences = []; totalSentences = 0; currentSentence = 0; message = nil
-        readingText = ""; clearFollow()
+        message = nil
+        if keepPreview {
+            followTask?.cancel(); followTask = nil
+        } else {
+            sentences = []; totalSentences = 0; currentSentence = 0
+            readingText = ""; clearFollow()
+        }
     }
     func shutdown() { stop(); captureTask?.cancel(); models.cancelAll(); hotkey.unregister() }
     func openTextReader() {
