@@ -233,7 +233,7 @@ developer verification tool; normal app operation does not require it.
 
 ## Follow-up verification — 2026-09-09
 
-- Clio-style native menu implemented without History or Updates; status icon was the template SF Symbol `play.circle`; replaced on 2026-09-13 by a speech-bubble glyph drawn from an SVG path as a template image (`StatusIcon`).
+- Clio-style native menu implemented without History or Updates; status icon was the template SF Symbol `play.circle`; replaced on 2026-09-13 by a speech-bubble glyph and on 2026-09-14 by a sound-wave glyph, both drawn from SVG paths as template images (`StatusIcon`).
 - Settings uses a native SwiftUI Settings scene with General/Reading/About toolbar tabs and Clio's code-native icons. Running General pane captured and visually inspected; full light/dark and interaction checks remain manual.
 - `swift test`: 10 passing tests, including hotkey conflict, release, and re-registration coverage. Actual shortcut event delivery after toggling remains a manual check.
 - Release rebuild and bundled offline integration passed for standard, compact, and imported Kokoro models, including playback, pause/resume, 2× speed, stop, and coordinator cancellation/replacement.

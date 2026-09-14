@@ -1,18 +1,33 @@
 import AppKit
 import AltoCore
 
-/// The menu-bar glyph: a speech bubble with three dots, drawn from its SVG
-/// path as a template image so macOS tints it for light and dark menu bars.
+/// The menu-bar glyph: sound waves around a dot, drawn from its SVG strokes
+/// as a template image so macOS tints it for light and dark menu bars.
 @MainActor enum StatusIcon {
-    static let designSize = NSSize(width: 18, height: 15)
-    static let path = "M11.9775 0C15.3036 0 18 2.69642 18 6.02246C18 7.81362 17.2168 9.42131 15.9756 10.5244C14.3203 11.9955 12.3932 13.3831 10.6191 14.7822C9.96329 15.2995 9 14.8323 9 13.9971V13.0449C9 12.4926 8.55228 12.0449 8 12.0449H6.02246C2.69647 12.0449 7.42189e-05 9.34844 0 6.02246C0 2.69642 2.69642 0 6.02246 0H11.9775ZM4.5 4.5C3.67157 4.5 3 5.17157 3 6C3 6.82843 3.67157 7.5 4.5 7.5C5.32843 7.5 6 6.82843 6 6C6 5.17157 5.32843 4.5 4.5 4.5ZM9 4.5C8.17157 4.5 7.5 5.17157 7.5 6C7.5 6.82843 8.17157 7.5 9 7.5C9.82843 7.5 10.5 6.82843 10.5 6C10.5 5.17157 9.82843 4.5 9 4.5ZM13.5 4.5C12.6716 4.5 12 5.17157 12 6C12 6.82843 12.6716 7.5 13.5 7.5C14.3284 7.5 15 6.82843 15 6C15 5.17157 14.3284 4.5 13.5 4.5Z"
+    static let designSize = NSSize(width: 25, height: 15)
+    static let strokeWidth: CGFloat = 2.625
+    static let arcs = [
+        "M16.313 11.3125C18.9022 9.16759 18.9022 5.45741 16.313 3.3125",
+        "M21.3135 13.3125C21.9476 12.5246 22.4505 11.5892 22.7937 10.5597C23.1369 9.53019 23.3135 8.4268 23.3135 7.3125C23.3135 6.1982 23.1369 5.09481 22.7937 4.06532C22.4505 3.03584 21.9476 2.10043 21.3135 1.3125",
+        "M8.31294 11.3125C5.72381 9.16759 5.72381 5.45741 8.31294 3.3125",
+        "M3.3125 13.3125C2.67842 12.5246 2.17544 11.5892 1.83228 10.5597C1.48912 9.53019 1.3125 8.4268 1.3125 7.3125C1.3125 6.1982 1.48912 5.09481 1.83228 4.06532C2.17544 3.03584 2.67842 2.10043 3.3125 1.3125"
+    ]
+    static let dot = (center: CGPoint(x: 12.3125, y: 7.3125), radius: CGFloat(1))
     static func image() -> NSImage {
         let image = NSImage(size: designSize, flipped: true) { _ in
             guard let context = NSGraphicsContext.current?.cgContext else { return false }
-            context.addPath(SVGPath.cgPath(path))
+            context.setStrokeColor(.black)
+            context.setLineWidth(strokeWidth)
+            context.setLineCap(.round)
+            for arc in arcs {
+                context.addPath(SVGPath.cgPath(arc))
+                context.strokePath()
+            }
+            // A stroke wider than the circle's diameter leaves a hole in Core
+            // Graphics; the design wants a solid dot, so fill to the stroke's outer edge.
+            let radius = dot.radius + strokeWidth / 2
             context.setFillColor(.black)
-            // Non-zero, the SVG default: the dots are wound the other way and become holes.
-            context.fillPath()
+            context.fillEllipse(in: CGRect(x: dot.center.x - radius, y: dot.center.y - radius, width: radius * 2, height: radius * 2))
             return true
         }
         image.isTemplate = true

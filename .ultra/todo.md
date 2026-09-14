@@ -103,7 +103,7 @@ See [noise investigation](../docs/audio-noise-investigation.md) for measurements
   - Adapt actions to reading: read selection/clipboard, playback controls, player, voice/model access, Settings, and Quit.
   - Ensure toggling the shortcut releases/re-registers it correctly and preserves conflict reporting.
 - [ ] Manually verify all menu actions, shortcut delivery after toggling, voice selection, and light/dark appearance. Settings' General layout has been checked; the full interaction/appearance matrix remains.
-- [x] Use Apple's SF Symbol `play.circle` for the system-bar icon; replaced 2026-09-13 by the speech-bubble SVG glyph rendered as a template image.
+- [x] Use Apple's SF Symbol `play.circle` for the system-bar icon; replaced 2026-09-13 by a speech-bubble glyph, then on 2026-09-14 by the sound-wave SVG glyph, both rendered as template images.
 - [x] Test shortcut registration, conflict handling, release, and re-enable; rebuild the app. All 10 unit tests pass.
 
 ## Earlier static investigation (superseded by confirmed cause above)
