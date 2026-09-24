@@ -27,7 +27,7 @@ import AltoCore
             guard let model = store.installed.first(where: { $0.id == id }), let weight = model.weight else {
                 throw AltoError("Install both test models using --integration-test before running audio regression.")
             }
-            let engine = KokoroWorkerEngine()
+            let engine = NativeSpeechWorkerEngine()
             defer { engine.unload() }
             var footprints: [Int] = []
             for voice in model.voices.prefix(4) {

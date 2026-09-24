@@ -6,7 +6,7 @@ import AVFoundation
     func unload()
 }
 
-@MainActor public final class KokoroWorkerEngine: SpeechEngine {
+@MainActor public final class NativeSpeechWorkerEngine: SpeechEngine {
     private var process: Process?
     private var input: Pipe?
     private var scratch: URL?

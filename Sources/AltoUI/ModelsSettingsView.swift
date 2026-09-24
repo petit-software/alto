@@ -68,8 +68,8 @@ struct ModelsSettingsView: View {
                 Text("Import")
             } footer: {
                 Text("Kokoro v1 safetensors weights with a voices folder beside them. "
-                     + "Compatibility is checked before installation. Other model families "
-                     + "need a runtime Alto does not include; English (US/UK) only for now.")
+                     + "Compatibility is checked before installation. Chatterbox Nano "
+                     + "is available from the catalog above with one built-in English voice.")
                     .font(.callout)
                     .foregroundStyle(.secondary)
             }
@@ -135,7 +135,7 @@ private struct ModelRow: View {
                 // The active model is chosen by selecting an installed row,
                 // rather than a separate picker that can point at nothing.
                 Image(systemName: isActive ? "largecircle.fill.circle" : "circle")
-                    .foregroundStyle(isActive ? Color.altoAccent : .secondary)
+                    .foregroundStyle(isActive ? Color.accentColor : .secondary)
                     .onTapGesture { if installed && !isActive { app.selectModel(model) } }
                     .accessibilityAddTraits(.isButton)
                     .accessibilityLabel(isActive ? "\(model.name) is selected" : "Use \(model.name)")
@@ -153,7 +153,7 @@ private struct ModelRow: View {
 
             if let progress {
                 VStack(alignment: .leading, spacing: 2) {
-                    ProgressView(value: progress).tint(.altoAccent)
+                    ProgressView(value: progress).tint(.accentColor)
                     Text(progressLabel(progress))
                         .font(.caption)
                         .foregroundStyle(.secondary)
@@ -180,7 +180,7 @@ private struct ModelRow: View {
             iconButton("minus.circle.fill", "Move \(model.name) to Trash", .secondary, action: delete)
         } else {
             let resuming = app.models.status[model.id] != nil
-            iconButton("arrow.down.circle.fill", resuming ? "Resume downloading \(model.name)" : "Download \(model.name)", .altoAccent) {
+            iconButton("arrow.down.circle.fill", resuming ? "Resume downloading \(model.name)" : "Download \(model.name)", .accentColor) {
                 app.models.download(model)
             }
         }
@@ -199,19 +199,21 @@ private struct ModelRow: View {
     }
 
     private var subtitle: String {
-        var parts = ["Kokoro v1", languages, "\(model.voices.count) voices"]
+        var parts = [model.familyLabel, languages, model.voices.count == 1 ? "1 voice" : "\(model.voices.count) voices"]
         parts.append(installed ? "\(app.models.installedSize(model)) on disk" : "\(model.sizeLabel) download")
         if let note { parts.append(note) }
         return parts.joined(separator: " · ")
     }
 
     private var languages: String {
+        if model.languages == ["English"] { return "English" }
         let names = model.languages.map { $0.replacingOccurrences(of: "English (", with: "").replacingOccurrences(of: ")", with: "") }
         return model.languages.allSatisfy({ $0.hasPrefix("English") }) ? "English (\(names.joined(separator: "/")))" : model.languages.joined(separator: ", ")
     }
 
     private var note: String? {
         switch model.id {
+        case "chatterbox-nano": return "Beta"
         case "kokoro-standard": return "Recommended"
         case "kokoro-compact": return "Smaller download, prepared locally"
         default: return model.repository == "Local files" ? "Imported from your Mac" : "Imported"

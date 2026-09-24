@@ -1,5 +1,32 @@
 # MVP verification
 
+## Chatterbox Nano — 2026-09-24
+
+Added a pinned 745,828,775-byte Core ML model with one built-in English voice.
+See [runtime provenance and limits](chatterbox-nano.md).
+
+- Silent integration downloaded/verified Nano and Kokoro Compact in
+  `/private/tmp/alto-transfer-check`; the existing Kokoro was copied into that
+  isolated directory. No tests wrote to the user's model installation.
+- Nano short fixtures generated 2.08 and 4.4 seconds of audio. The longer
+  passage exceeded the standard output budget and passed in 3 chunks after
+  1 split/retry, preserving every non-whitespace character. PCM was finite,
+  non-silent and 24 kHz. Human listening quality remains unassessed.
+- All 24 Kokoro audio fixtures and four exact convolution lengths passed.
+- The installed `/Applications/Alto.app` repeated silent integration with
+  network access and repository build-directory reads denied. Nano and both
+  Kokoro models passed. Speaker/coordinator playback was explicitly skipped.
+- `swift test --build-system native`: 43 of 45 tests pass, including all five
+  new Nano tests. Two existing player-width tests have 6 failing assertions
+  after the pre-existing uncommitted SpeedControl UI addition. These were not
+  changed as part of Nano support. Plain `swift test` fails earlier with the
+  Xcode 27 default build system's duplicate static MLX dependency diagnostic.
+- `./scripts/install-app.sh` rebuilt, installed and relaunched Alto; the
+  installed process and deep strict signature verification were confirmed.
+
+Interactive Nano selection, cancellation/deletion and listening acceptance
+remain manual. No audible test or system audio-setting change was made.
+
 **Radio-noise update:** the generation defect is now reproduced and fixed.
 See [audio-noise-investigation.md](audio-noise-investigation.md) for exact
 before/after measurements and the new native regression command. All 24 speech

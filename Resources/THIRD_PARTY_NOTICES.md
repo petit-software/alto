@@ -17,12 +17,17 @@ Notices directory alongside this file.
 | MLXUtilsLibrary | 0.0.6 | Apache-2.0 |
 | Swift Numerics | 1.1.1 | Apache-2.0 with Runtime Library Exception |
 | ZIPFoundation | 0.9.20 | MIT |
+| FluidAudio — adapted Chatterbox Nano runtime subset | 5c51c5c93afff0d89594a2a93c3103e790ba648c | Apache-2.0 |
 
 Model files download separately. Kokoro-82M by hexgrad and the curated MLX/Swift
 conversions declare Apache-2.0 on their model cards. Original source cards and
 pinned revisions are retained in each installation's `alto-model.json`; model
-cards are included with downloads. All four bundled catalog voices originate
+cards are included with downloads. The four Kokoro catalog voices originate
 from the Kokoro-82M conversion, including the compact model's voice files.
+
+Chatterbox Nano by ResembleAI and its FluidInference Core ML conversion declare
+MIT licensing. Nano includes its own default reference voice. See
+`docs/chatterbox-nano.md` for pinned artifacts, runtime adaptations and limits.
 
 Sources:
 
@@ -35,6 +40,9 @@ Sources:
 - https://huggingface.co/hexgrad/Kokoro-82M
 - https://huggingface.co/mlx-community/Kokoro-82M-bf16
 - https://huggingface.co/erildo/Kokoro-82M-fp16-Swift
+- https://github.com/FluidInference/FluidAudio
+- https://huggingface.co/ResembleAI/chatterbox-nano
+- https://huggingface.co/FluidInference/chatterbox-nano-coreml
 
 The compact conversion uses different tensor names and omits ALBERT's unused
 pooled output. Alto normalizes names in its worker, expands weights to Float32,

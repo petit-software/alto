@@ -2,6 +2,35 @@ import XCTest
 @testable import AltoCore
 
 final class ModelValidationTests: XCTestCase {
+    func testNanoCatalogHasCompletePinnedAssetsAndItsOwnVoice() throws {
+        let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+        let catalog = try JSONDecoder().decode([ModelDescriptor].self, from: Data(contentsOf: root.appendingPathComponent("Resources/catalog.json")))
+        var nano = try XCTUnwrap(catalog.first(where: { $0.id == "chatterbox-nano" }))
+        XCTAssertNoThrow(try ModelValidation.validateNanoManifest(nano))
+        XCTAssertEqual(nano.inferencePath, "alto-model.json")
+        XCTAssertEqual(nano.voices.map(\.path), ["tables/voice-default.safetensors"])
+        XCTAssertEqual(ModelDescriptor.voiceName(nano.voices[0].path), "Default · English")
+        XCTAssertNil(nano.weight)
+        XCTAssertTrue(nano.files.allSatisfy { $0.url?.path.contains(nano.revision) == true })
+        nano.files.removeAll { $0.path == "tokenizer/vocab.json" }
+        XCTAssertThrowsError(try ModelValidation.validateNanoManifest(nano))
+        let kokoro = try XCTUnwrap(catalog.first(where: { $0.id == "kokoro-standard" }))
+        XCTAssertEqual(kokoro.inferencePath, kokoro.weight?.path)
+        XCTAssertEqual(kokoro.voices.count, 4)
+    }
+
+    @MainActor func testNanoInstallationSurvivesStoreReload() throws {
+        let repository = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+        let catalog = try JSONDecoder().decode([ModelDescriptor].self, from: Data(contentsOf: repository.appendingPathComponent("Resources/catalog.json")))
+        let nano = try XCTUnwrap(catalog.first(where: { $0.id == "chatterbox-nano" }))
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let folder = root.appendingPathComponent(nano.id)
+        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        try JSONEncoder().encode(nano).write(to: folder.appendingPathComponent("alto-model.json"))
+        XCTAssertTrue(ModelStore(root: root).isInstalled(nano))
+    }
+
     func testTraversalAndSymlinkEscape() throws {
         let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)

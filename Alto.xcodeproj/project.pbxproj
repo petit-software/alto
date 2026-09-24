@@ -10,12 +10,13 @@
 		01CC0559982217F8CAEFE4F7 /* AltoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B35D89F9EC3193C356B9492 /* AltoApp.swift */; };
 		233FDB9C87E163ED2A5E9D4E /* catalog.json in Resources */ = {isa = PBXBuildFile; fileRef = 3A6BCB4D4079B1917A88C9C6 /* catalog.json */; };
 		3E715EA75D58FE064EAB7A8A /* SpeechRuntimeCheck.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8BD88138C6F87D25B34A966 /* SpeechRuntimeCheck.swift */; };
-		8CD5B47818CC37F392B2C78E /* KokoroSwift in Frameworks */ = {isa = PBXBuildFile; productRef = DFF1D1221DF3C686A82DDF5C /* KokoroSwift */; };
+		70E2B5DC591306F9B4F80C76 /* MLX in Frameworks */ = {isa = PBXBuildFile; productRef = F02995E219BBF779DB4A9D9A /* MLX */; };
+		8CD5B47818CC37F392B2C78E /* AltoChatterbox in Frameworks */ = {isa = PBXBuildFile; productRef = FA950112A262EF2B42FA21DF /* AltoChatterbox */; };
 		AC1BD6ACE81928D547E79421 /* Notices in Resources */ = {isa = PBXBuildFile; fileRef = A0AD03502BCA175A509B429A /* Notices */; };
 		AEFB92117F912EA4172B9EEF /* AltoUI in Frameworks */ = {isa = PBXBuildFile; productRef = DCDBAAD7F1257F5251865EF3 /* AltoUI */; };
 		C8182F69344D9D6D8CC4927C /* kokoro-schema.json in Resources */ = {isa = PBXBuildFile; fileRef = 583DF8BFC6EE32227836C769 /* kokoro-schema.json */; };
 		D12E3410BFBA470671B973DE /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8E7575F5BDEA8484E7A4ED /* main.swift */; };
-		D6F6567F87868CA577A94C1F /* MLX in Frameworks */ = {isa = PBXBuildFile; productRef = F02995E219BBF779DB4A9D9A /* MLX */; };
+		D6F6567F87868CA577A94C1F /* KokoroSwift in Frameworks */ = {isa = PBXBuildFile; productRef = DFF1D1221DF3C686A82DDF5C /* KokoroSwift */; };
 		E041AC231FB09A388BEC666E /* THIRD_PARTY_NOTICES.md in Resources */ = {isa = PBXBuildFile; fileRef = D3EC1B83EE1081DD397D5A48 /* THIRD_PARTY_NOTICES.md */; };
 		E99BB9D9C36E3863AC59BF96 /* AltoCore in Frameworks */ = {isa = PBXBuildFile; productRef = 509F883F6CD96AACA45C4724 /* AltoCore */; };
 /* End PBXBuildFile section */
@@ -49,8 +50,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				E99BB9D9C36E3863AC59BF96 /* AltoCore in Frameworks */,
-				8CD5B47818CC37F392B2C78E /* KokoroSwift in Frameworks */,
-				D6F6567F87868CA577A94C1F /* MLX in Frameworks */,
+				8CD5B47818CC37F392B2C78E /* AltoChatterbox in Frameworks */,
+				D6F6567F87868CA577A94C1F /* KokoroSwift in Frameworks */,
+				70E2B5DC591306F9B4F80C76 /* MLX in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -140,6 +142,7 @@
 			name = AltoSpeechWorker;
 			packageProductDependencies = (
 				509F883F6CD96AACA45C4724 /* AltoCore */,
+				FA950112A262EF2B42FA21DF /* AltoChatterbox */,
 				DFF1D1221DF3C686A82DDF5C /* KokoroSwift */,
 				F02995E219BBF779DB4A9D9A /* MLX */,
 			);
@@ -541,6 +544,10 @@
 			isa = XCSwiftPackageProductDependency;
 			package = A79133787D48464927F441FB /* XCRemoteSwiftPackageReference "mlx-swift" */;
 			productName = MLX;
+		};
+		FA950112A262EF2B42FA21DF /* AltoChatterbox */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = AltoChatterbox;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

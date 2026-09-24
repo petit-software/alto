@@ -58,6 +58,7 @@ public struct AltoSettingsRoot: View {
         statusItem.button?.image = StatusIcon.image()
         statusItem.button?.toolTip = "Alto · \(app.shortcutLabel)"
         let menu = NSMenu(); menu.delegate = self; menu.autoenablesItems = false; statusItem.menu = menu
+        reflectShortcutState()
         permissionTimer = Timer.scheduledTimer(withTimeInterval: 2, repeats: true) { [weak self] _ in
             Task { @MainActor in self?.app.permissionGranted = SelectionReader.hasPermission }
         }
@@ -119,6 +120,14 @@ public struct AltoSettingsRoot: View {
         let footer = NSMenuItem(title: "Alto \(version)\(build)", action: nil, keyEquivalent: "")
         footer.isEnabled = false; menu.addItem(footer)
     }
+    /// The menu-bar glyph greys out while the reading shortcut is switched off.
+    private func reflectShortcutState() {
+        withObservationTracking {
+            statusItem.button?.appearsDisabled = !app.shortcutEnabled
+        } onChange: {
+            Task { @MainActor [weak self] in self?.reflectShortcutState() }
+        }
+    }
     private func add(_ title: String, action: Selector, key: String = "", to menu: NSMenu) {
         let item = NSMenuItem(title: title, action: action, keyEquivalent: key); item.target = self; menu.addItem(item)
     }
@@ -174,12 +183,16 @@ private struct ShortcutMenuRow: View {
 
 private struct ShortcutMenuSwitchStyle: ToggleStyle {
     func makeBody(configuration: Configuration) -> some View {
-        Button { configuration.isOn.toggle() } label: {
-            Capsule().fill(configuration.isOn ? Color.accentColor : Color.primary.opacity(0.15))
+        // Alignment changes never animate; the knob slides by offset and the
+        // tint crossfades so the switch moves like the system one.
+        Button { withAnimation(.easeInOut(duration: 0.15)) { configuration.isOn.toggle() } } label: {
+            Capsule().fill(Color.primary.opacity(0.15))
+                .overlay(Capsule().fill(Color.accentColor).opacity(configuration.isOn ? 1 : 0))
                 .frame(width: 36, height: 16)
-                .overlay(alignment: configuration.isOn ? .trailing : .leading) {
+                .overlay(alignment: .leading) {
                     Capsule().fill(.white).frame(width: 21, height: 13)
                         .shadow(color: .black.opacity(0.2), radius: 1, y: 0.5).padding(1.5)
+                        .offset(x: configuration.isOn ? 12 : 0)
                 }
         }.buttonStyle(.plain).animation(.easeInOut(duration: 0.15), value: configuration.isOn)
             .accessibilityRepresentation { Toggle(isOn: configuration.$isOn) { configuration.label } }

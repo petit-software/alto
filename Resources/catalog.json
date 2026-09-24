@@ -108,5 +108,151 @@
         "url": "https://huggingface.co/mlx-community/Kokoro-82M-bf16/resolve/a71e4d38b236d968966a2002c4c895dbd12b1c3c/voices/bm_george.safetensors"
       }
     ]
+  },
+  {
+    "id": "chatterbox-nano",
+    "name": "Chatterbox Nano",
+    "summary": "Expressive English speech with one built-in voice. Beta Core ML conversion.",
+    "family": "chatterbox-nano-coreml",
+    "repository": "FluidInference/chatterbox-nano-coreml",
+    "revision": "6eb3640c4f441139ccba33f1cf0998924dbd6718",
+    "license": "mit",
+    "languages": [
+      "English"
+    ],
+    "files": [
+      {
+        "path": "FlowMean-N500-fp16.mlmodelc/analytics/coremldata.bin",
+        "bytes": 243,
+        "sha256": "2c42e573a5ab546c46261806c9df86a749efd7442a8341e02bbc8dc7caaf41ae",
+        "url": "https://huggingface.co/FluidInference/chatterbox-nano-coreml/resolve/6eb3640c4f441139ccba33f1cf0998924dbd6718/FlowMean-N500-fp16.mlmodelc/analytics/coremldata.bin"
+      },
+      {
+        "path": "FlowMean-N500-fp16.mlmodelc/coremldata.bin",
+        "bytes": 492,
+        "sha256": "310ae0404f77a16a4346ba60a3b1dfb031c66013fc16047b18502348b9a05f6a",
+        "url": "https://huggingface.co/FluidInference/chatterbox-nano-coreml/resolve/6eb3640c4f441139ccba33f1cf0998924dbd6718/FlowMean-N500-fp16.mlmodelc/coremldata.bin"
+      },
+      {
+        "path": "FlowMean-N500-fp16.mlmodelc/model.mil",
+        "bytes": 1697711,
+        "sha256": "39f77c33c22fcda1718b9fd582a92245d61a9fd5c9d3cc7e6f6bbb4951bdf8c5",
+        "url": "https://huggingface.co/FluidInference/chatterbox-nano-coreml/resolve/6eb3640c4f441139ccba33f1cf0998924dbd6718/FlowMean-N500-fp16.mlmodelc/model.mil"
+      },
+      {
+        "path": "FlowMean-N500-fp16.mlmodelc/weights/weight.bin",
+        "bytes": 237827200,
+        "sha256": "1440803a8b56416f4592ba662594072df0a873c1bdac0c296d52963c1cf59c38",
+        "url": "https://huggingface.co/FluidInference/chatterbox-nano-coreml/resolve/6eb3640c4f441139ccba33f1cf0998924dbd6718/FlowMean-N500-fp16.mlmodelc/weights/weight.bin"
+      },
+      {
+        "path": "HiFT-T1000-fp16.mlmodelc/analytics/coremldata.bin",
+        "bytes": 243,
+        "sha256": "7271dec8da61c065c5cf5d3452c63a7689acdcb7ade40011b8e5b8d185bcbe43",
+        "url": "https://huggingface.co/FluidInference/chatterbox-nano-coreml/resolve/6eb3640c4f441139ccba33f1cf0998924dbd6718/HiFT-T1000-fp16.mlmodelc/analytics/coremldata.bin"
+      },
+      {
+        "path": "HiFT-T1000-fp16.mlmodelc/coremldata.bin",
+        "bytes": 419,
+        "sha256": "47fa0365ecdca66231ba6ac390f766e579a9b3e5399c6a5a9292eeadc5f24994",
+        "url": "https://huggingface.co/FluidInference/chatterbox-nano-coreml/resolve/6eb3640c4f441139ccba33f1cf0998924dbd6718/HiFT-T1000-fp16.mlmodelc/coremldata.bin"
+      },
+      {
+        "path": "HiFT-T1000-fp16.mlmodelc/model.mil",
+        "bytes": 278666,
+        "sha256": "c4e65899e29ecfa935d93727314677ecb8e606519139b980c6807b11fefc7002",
+        "url": "https://huggingface.co/FluidInference/chatterbox-nano-coreml/resolve/6eb3640c4f441139ccba33f1cf0998924dbd6718/HiFT-T1000-fp16.mlmodelc/model.mil"
+      },
+      {
+        "path": "HiFT-T1000-fp16.mlmodelc/weights/weight.bin",
+        "bytes": 41896608,
+        "sha256": "45b73f5b4a72f7e0a64c515931fa6ed280663fa93458767e092ad4dca6fc89a6",
+        "url": "https://huggingface.co/FluidInference/chatterbox-nano-coreml/resolve/6eb3640c4f441139ccba33f1cf0998924dbd6718/HiFT-T1000-fp16.mlmodelc/weights/weight.bin"
+      },
+      {
+        "path": "README.md",
+        "bytes": 4976,
+        "sha256": "958e19bfb1717a8b2f2a0c96c7f232a7bc40557d902115ae87d9b4847591dd02",
+        "url": "https://huggingface.co/FluidInference/chatterbox-nano-coreml/resolve/6eb3640c4f441139ccba33f1cf0998924dbd6718/README.md"
+      },
+      {
+        "path": "T3Nano-Decode-M1536-fp16-stateful.mlmodelc/analytics/coremldata.bin",
+        "bytes": 243,
+        "sha256": "23a5dca662da7e2b9bd93561ac0d298ee1cd5fffdad2d00efec1d54c8c69e9eb",
+        "url": "https://huggingface.co/FluidInference/chatterbox-nano-coreml/resolve/6eb3640c4f441139ccba33f1cf0998924dbd6718/T3Nano-Decode-M1536-fp16-stateful.mlmodelc/analytics/coremldata.bin"
+      },
+      {
+        "path": "T3Nano-Decode-M1536-fp16-stateful.mlmodelc/coremldata.bin",
+        "bytes": 1053,
+        "sha256": "6a5a287b0d3830830cc16dd7a775819b4b78890e664527163a261b52f9d6f9d5",
+        "url": "https://huggingface.co/FluidInference/chatterbox-nano-coreml/resolve/6eb3640c4f441139ccba33f1cf0998924dbd6718/T3Nano-Decode-M1536-fp16-stateful.mlmodelc/coremldata.bin"
+      },
+      {
+        "path": "T3Nano-Decode-M1536-fp16-stateful.mlmodelc/model.mil",
+        "bytes": 189026,
+        "sha256": "9f4bdfa9584879cbf9ba65dca0aa847198bf1c3b74012cf6f10d3b493fa10953",
+        "url": "https://huggingface.co/FluidInference/chatterbox-nano-coreml/resolve/6eb3640c4f441139ccba33f1cf0998924dbd6718/T3Nano-Decode-M1536-fp16-stateful.mlmodelc/model.mil"
+      },
+      {
+        "path": "T3Nano-Decode-M1536-fp16-stateful.mlmodelc/weights/weight.bin",
+        "bytes": 192813958,
+        "sha256": "1ed130400258bb92c66b74f30d4cec350fa42e13fe2716af674599c4c1fd7607",
+        "url": "https://huggingface.co/FluidInference/chatterbox-nano-coreml/resolve/6eb3640c4f441139ccba33f1cf0998924dbd6718/T3Nano-Decode-M1536-fp16-stateful.mlmodelc/weights/weight.bin"
+      },
+      {
+        "path": "T3Nano-Prefill-T512-M1536-fp16.mlmodelc/analytics/coremldata.bin",
+        "bytes": 243,
+        "sha256": "a6042e9a098850cc9bb5f65572a30e601d05ad6c8c057ebc8874b9c1856085cc",
+        "url": "https://huggingface.co/FluidInference/chatterbox-nano-coreml/resolve/6eb3640c4f441139ccba33f1cf0998924dbd6718/T3Nano-Prefill-T512-M1536-fp16.mlmodelc/analytics/coremldata.bin"
+      },
+      {
+        "path": "T3Nano-Prefill-T512-M1536-fp16.mlmodelc/coremldata.bin",
+        "bytes": 452,
+        "sha256": "17d0aee11d54f3a1bd0d5a4339fcc0e176be64cccfe45c63ff727aa212766df4",
+        "url": "https://huggingface.co/FluidInference/chatterbox-nano-coreml/resolve/6eb3640c4f441139ccba33f1cf0998924dbd6718/T3Nano-Prefill-T512-M1536-fp16.mlmodelc/coremldata.bin"
+      },
+      {
+        "path": "T3Nano-Prefill-T512-M1536-fp16.mlmodelc/model.mil",
+        "bytes": 170938,
+        "sha256": "28828218f3f2b5afa22f6dec6f3dd16f938244fb8bfd5f200fab7ba7548ec478",
+        "url": "https://huggingface.co/FluidInference/chatterbox-nano-coreml/resolve/6eb3640c4f441139ccba33f1cf0998924dbd6718/T3Nano-Prefill-T512-M1536-fp16.mlmodelc/model.mil"
+      },
+      {
+        "path": "T3Nano-Prefill-T512-M1536-fp16.mlmodelc/weights/weight.bin",
+        "bytes": 181526278,
+        "sha256": "c936c3e4cd95370bb2fc60aaaab21b99ac475ea184025f9472518c99d23dcd35",
+        "url": "https://huggingface.co/FluidInference/chatterbox-nano-coreml/resolve/6eb3640c4f441139ccba33f1cf0998924dbd6718/T3Nano-Prefill-T512-M1536-fp16.mlmodelc/weights/weight.bin"
+      },
+      {
+        "path": "tables/tables.safetensors",
+        "bytes": 87304872,
+        "sha256": "9d17bfce75779a5ad8e00932f43cc1549bf50152718cfd3a0dce02b7c70c99d5",
+        "url": "https://huggingface.co/FluidInference/chatterbox-nano-coreml/resolve/6eb3640c4f441139ccba33f1cf0998924dbd6718/tables/tables.safetensors"
+      },
+      {
+        "path": "tables/voice-default.safetensors",
+        "bytes": 659232,
+        "sha256": "daab19800023fa41bf81b9f88e4bff947c99dba36c625a87d92a3b2e22c90b3c",
+        "url": "https://huggingface.co/FluidInference/chatterbox-nano-coreml/resolve/6eb3640c4f441139ccba33f1cf0998924dbd6718/tables/voice-default.safetensors"
+      },
+      {
+        "path": "tokenizer/added_tokens.json",
+        "bytes": 418,
+        "sha256": "72e4ab6acb0d9309ac3df4b526ae5fd80a2da5bc5ab7bb02d85096a374f69193",
+        "url": "https://huggingface.co/FluidInference/chatterbox-nano-coreml/resolve/6eb3640c4f441139ccba33f1cf0998924dbd6718/tokenizer/added_tokens.json"
+      },
+      {
+        "path": "tokenizer/merges.txt",
+        "bytes": 456318,
+        "sha256": "1ce1664773c50f3e0cc8842619a93edc4624525b728b188a9e0be33b7726adc5",
+        "url": "https://huggingface.co/FluidInference/chatterbox-nano-coreml/resolve/6eb3640c4f441139ccba33f1cf0998924dbd6718/tokenizer/merges.txt"
+      },
+      {
+        "path": "tokenizer/vocab.json",
+        "bytes": 999186,
+        "sha256": "f6bd25a65e4e63ca31360e9fb11c7e4f9a391a78385d640acd814092dd6eee4f",
+        "url": "https://huggingface.co/FluidInference/chatterbox-nano-coreml/resolve/6eb3640c4f441139ccba33f1cf0998924dbd6718/tokenizer/vocab.json"
+      }
+    ]
   }
 ]

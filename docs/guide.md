@@ -1,7 +1,7 @@
 # Alto
 
 A native macOS menu-bar reader. Select text, press **Option–Space**, and listen
-with Kokoro voices generated entirely on your Mac. The floating player adapts
+with voices generated entirely on your Mac. The floating player adapts
 Clio's tinted glass capsule and nonactivating panel.
 
 ## Run
@@ -15,10 +15,11 @@ reused; quit an older running Alto and open the rebuilt app. See the
 [diagnosis and regression checks](audio-noise-investigation.md).
 
 1. Open `dist/Alto.app` (or copy it to Applications).
-2. In **Settings → Models**, download **Kokoro** (~329 MB) or **Kokoro Compact** (~164 MB).
+2. In **Settings → Models**, download **Kokoro** (~329 MB), **Kokoro Compact** (~164 MB), or **Chatterbox Nano** (~746 MB, beta).
 3. Enable Alto in **System Settings → Privacy & Security → Accessibility**.
 4. Select English text in another app and press **Option–Space**. Change the
-   shortcut in Alto → Settings if another app uses it.
+   shortcut in Alto → Settings if another app uses it. The switch at the top of
+   the menu-bar menu turns the shortcut off; the menu-bar icon greys out while it is.
 
 The pill appears only after text is captured and validated for reading. It has
 play/pause and **X**, which cancels capture/generation, stops audio and dismisses
@@ -42,7 +43,8 @@ tags and emojis; the original source app and clipboard are not changed. Paste is
 beside Play in the editor's floating pill; use the player's X to close. The pill
 overlays the text canvas, with scroll clearance for the final lines. Hashtags such as `#topic` are
 ordinary text, not markup tags.
-Voice and 0.5×–2× speed are also in **Settings → Reading**.
+The pill's speed dropdown (the current rate with a chevron) opens a 0.5×–2×
+slider; voice and speed are also in **Settings → Reading**.
 **Show Player** is available only during a reading and
 gives the pill keyboard focus. Changing voice restarts the current
 passage. Switching models stops reading and checks the new model before saving
@@ -69,7 +71,7 @@ or Read Clipboard there.
 
 **Read Text…** in the menu opens a dedicated paste window with the player at the
 bottom. Press Play to read; X or closing the window stops reading and clears the
-draft. Voice, speed and player size remain in Settings. You can also choose
+draft. Speed is in the pill's dropdown; voice and player size remain in Settings. You can also choose
 **Read Clipboard** from the menu. These routes don't require selection access.
 
 General, Models, Reading, and About all live in the native Settings window.
@@ -119,8 +121,9 @@ Do not treat this local DMG as a completed public release.
 
 ## Models and formats
 
-Both curated entries use the Kokoro v1 family and include Heart, Michael, Emma,
-and George. Their cards show pinned sources, download bytes, licenses, languages,
+The two Kokoro entries include Heart, Michael, Emma, and George.
+[Chatterbox Nano](chatterbox-nano.md) adds one built-in English voice through a
+beta Core ML conversion. Their cards show pinned sources, download bytes, licenses, languages,
 and hardware guidance. All runtime resources and English phonemizer dictionaries
 ship in the app. After a complete download, playback and model switching work
 offline; model browsing uses the bundled catalog.
@@ -232,7 +235,7 @@ can be terminated when generation is cancelled.
 
 A new model family needs a validator, a worker adapter and protocol dispatch,
 capability metadata, catalog entries, and real offline integration fixtures.
-Current family routing intentionally accepts only `kokoro-v1`; downloaded files
+Current family routing accepts `kokoro-v1` and `chatterbox-nano-coreml`; downloaded files
 cannot register executable plugins. Models, voices, and playback stay separate.
 
 Dependency and model notices are bundled in

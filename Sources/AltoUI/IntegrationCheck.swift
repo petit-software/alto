@@ -8,7 +8,7 @@ import AltoCore
 @MainActor enum IntegrationCheck {
     static func run(at root: URL, offline: Bool, audiblePlayback: Bool = false) async throws {
         let store = ModelStore(root: root.appendingPathComponent("Models"))
-        let engine = KokoroWorkerEngine()
+        let engine = NativeSpeechWorkerEngine()
         defer { engine.unload() }
         func log(_ text: String) { print(text); fflush(stdout) }
         if !offline {
@@ -38,11 +38,11 @@ import AltoCore
                 log("PASS verified download and atomic install: \(model.name), \(model.downloadBytes) bytes")
             }
             let folder = store.folder(model)
-            let firstVoice = model.voices.first(where: { $0.path.contains("af_heart") })!
+            let firstVoice = model.voices.first(where: { $0.path.contains("af_heart") }) ?? model.voices.first!
             var output: URL?
             for (index, text) in ["Alto reads entirely on your Mac.", "On September ninth, the train leaves at three thirty. Take a breath, and listen."].enumerated() {
                 let start = Date()
-                let file = try await engine.generate(model: folder.appendingPathComponent(model.weight!.path),
+                let file = try await engine.generate(model: folder.appendingPathComponent(model.inferencePath!),
                     voice: folder.appendingPathComponent(firstVoice.path), text: text)
                 let audio = try AVAudioFile(forReading: file)
                 let duration = Double(audio.length) / audio.processingFormat.sampleRate
@@ -53,6 +53,39 @@ import AltoCore
                 if FileManager.default.fileExists(atPath: saved.path) { try FileManager.default.removeItem(at: saved) }
                 try FileManager.default.copyItem(at: file, to: saved)
                 if index == 0 { output = file }
+            }
+            if model.isChatterboxNano {
+                let longText = "When the morning sun appeared over the hills, the village slowly came to life, and people opened their windows to welcome the fresh air. A small group of friends gathered beside the river to plan their journey through the countryside, taking their time to enjoy the quiet streets and the sound of birds before setting off together toward the mountains."
+                var pending = [longText]
+                var index = 0
+                var splits = 0
+                while index < pending.count {
+                    do {
+                        let file = try await engine.generate(model: folder.appendingPathComponent(model.inferencePath!),
+                            voice: folder.appendingPathComponent(firstVoice.path), text: pending[index])
+                        let audio = try AVAudioFile(forReading: file)
+                        let buffer = AVAudioPCMBuffer(pcmFormat: audio.processingFormat, frameCapacity: AVAudioFrameCount(audio.length))!
+                        try audio.read(into: buffer)
+                        let samples = UnsafeBufferPointer(start: buffer.floatChannelData![0], count: Int(buffer.frameLength))
+                        let peak = samples.reduce(Float(0)) { max($0, abs($1)) }
+                        guard audio.processingFormat.sampleRate == 24000, audio.length > 7200,
+                              samples.allSatisfy({ $0.isFinite }), peak > 0.01, peak <= 1 else {
+                            throw AltoError("Invalid Nano regression audio.")
+                        }
+                        let saved = root.appendingPathComponent("chatterbox-nano-long-\(index).wav")
+                        try? FileManager.default.removeItem(at: saved)
+                        try FileManager.default.copyItem(at: file, to: saved)
+                        index += 1
+                    } catch {
+                        guard error.localizedDescription == "tooManyTokens", pending[index].count > 8 else { throw error }
+                        pending.replaceSubrange(index...index, with: TextChunker.split(pending[index], limit: pending[index].count / 2))
+                        splits += 1
+                    }
+                }
+                guard splits > 0, pending.joined().filter({ !$0.isWhitespace }) == longText.filter({ !$0.isWhitespace }) else {
+                    throw AltoError("Nano long-text splitting did not preserve all text.")
+                }
+                log("PASS Nano long passage: \(index) chunks, \(splits) limit retries, finite 24 kHz audio; listening quality not assessed")
             }
             if audiblePlayback, let output {
                 let playback = AudioPlayback()
@@ -74,9 +107,11 @@ import AltoCore
             }
             engine.unload()
         }
-        if !offline, store.installed.count == 2, let model = store.installed.first {
+        if !offline, let model = store.installed.first(where: { $0.id == "kokoro-standard" }),
+           !store.installed.contains(where: { $0.repository == "Local files" }) {
+            let previousCount = store.installed.count
             try await store.importLocal(store.folder(model))
-            guard store.installed.count == 3 else { throw AltoError("Local model import failed.") }
+            guard store.installed.count == previousCount + 1 else { throw AltoError("Local model import failed.") }
             log("PASS compatible local folder import")
         }
         if !offline {

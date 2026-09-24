@@ -8,24 +8,42 @@ struct PlayerView: View {
     @Bindable var app: AppModel
     var shown: Bool
     var embedded = false
+    /// The preview as it was when hiding began; the model clears its text
+    /// right after, and the exit should roll the passage away, not drop it.
+    var exitPreview: (text: String, highlight: ReadingHighlight?)? = nil
     var onPaste: (() -> Void)? = nil
     @Environment(\.colorScheme) private var scheme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     private var dark: Bool { scheme == .dark }
     private var scale: CGFloat { app.playerSize.rawValue }
+    /// Hiding is staged: the preview rolls into the pill, then the pill fades.
+    static let previewExitDuration = 0.28
+    static let pillExitDuration = 0.22
     var body: some View {
+        let frozen = shown ? nil : exitPreview
+        let previewText = frozen?.text ?? app.readingText
+        let highlight = frozen?.highlight ?? app.readingHighlight
+        let staged = !embedded && app.showPreview && !previewText.isEmpty
+        let top = !embedded && app.playerPosition.isTop
         VStack(spacing: 10 * scale) {
-            if !embedded, app.playerPosition.isTop { pill }
-            if !embedded, app.showPreview, !app.readingText.isEmpty {
-                ReadingPreview(text: app.readingText, scale: scale, highlight: app.readingHighlight,
+            if top { exiting(pill, delayed: staged) }
+            if staged {
+                ReadingPreview(text: previewText, scale: scale, highlight: highlight,
                                follow: Binding(get: { app.followReading }, set: { app.followReading = $0 }))
+                    .mask { Rectangle().padding(-24).scaleEffect(y: shown || reduceMotion ? 1 : 0.001, anchor: top ? .top : .bottom) }
+                    .opacity(shown ? 1 : 0)
+                    .animation(reduceMotion ? .easeOut(duration: 0.15) : shown ? .spring(duration: 0.35, bounce: 0.15)
+                               : .easeInOut(duration: Self.previewExitDuration), value: shown)
             }
-            if embedded || !app.playerPosition.isTop { pill }
+            if !top { exiting(pill, delayed: staged) }
         }
-        .scaleEffect(shown || reduceMotion ? 1 : 0.94)
-        .opacity(shown ? 1 : 0)
-        .animation(reduceMotion ? nil : .spring(duration: 0.35, bounce: 0.15), value: shown)
         .padding(14).fixedSize()
+    }
+    private func exiting(_ pill: some View, delayed: Bool) -> some View {
+        pill.scaleEffect(shown || reduceMotion ? 1 : 0.94)
+            .opacity(shown ? 1 : 0)
+            .animation(reduceMotion ? .easeOut(duration: 0.15) : shown ? .spring(duration: 0.35, bounce: 0.15)
+                       : .easeOut(duration: Self.pillExitDuration).delay(delayed ? Self.previewExitDuration - 0.04 : 0), value: shown)
     }
     private var pill: some View {
         HStack(spacing: 12 * scale) {
@@ -53,6 +71,7 @@ struct PlayerView: View {
                 }.frame(width: 132 * scale, alignment: .leading)
                     .help("Audio is generated on this Mac")
             }
+            SpeedControl(rate: $app.rate, scale: scale)
             Button { app.stopAndDismiss() } label: {
                 Image(systemName: "xmark").font(.system(size: (embedded ? 13 : 10) * scale, weight: .bold))
                     .foregroundStyle(.secondary).frame(width: 28 * scale, height: 28 * scale)
@@ -66,6 +85,49 @@ struct PlayerView: View {
         .clipShape(Capsule())
         .shadow(color: .black.opacity(dark ? 0.34 : 0.08), radius: 8, x: 0, y: 3)
         .shadow(color: .black.opacity(dark ? 0.24 : 0.08), radius: 2, x: 0, y: 1)
+    }
+}
+
+/// The playback speed as a compact dropdown: the value and a chevron open a
+/// popover holding the slider, so the pill stays narrow.
+struct SpeedControl: View {
+    @Binding var rate: Double
+    let scale: CGFloat
+    @State private var open = false
+    var body: some View {
+        Button { open.toggle() } label: {
+            HStack(spacing: 3 * scale) {
+                Text("\(rate, specifier: "%.1f")×").monospacedDigit()
+                    .font(.system(size: 11 * scale, weight: .semibold))
+                Image(systemName: "chevron.down").font(.system(size: 8 * scale, weight: .bold))
+            }
+            .foregroundStyle(.secondary)
+            .padding(.horizontal, 8 * scale).frame(height: 24 * scale)
+            .background(.primary.opacity(open ? 0.12 : 0.07), in: Capsule())
+        }
+        .buttonStyle(.plain)
+        .help("Playback speed").accessibilityLabel("Playback speed")
+        .accessibilityValue("\(rate, specifier: "%.1f") times")
+        .popover(isPresented: $open, arrowEdge: .bottom) {
+            VStack(alignment: .leading, spacing: 8) {
+                HStack {
+                    Text("Speed").font(.system(size: 12, weight: .semibold))
+                    Spacer()
+                    Text("\(rate, specifier: "%.1f")×").monospacedDigit().font(.system(size: 12)).foregroundStyle(.secondary)
+                }
+                Slider(value: $rate, in: 0.5...2, step: 0.1) {
+                    Text("Speed")
+                } minimumValueLabel: {
+                    Text("0.5×").font(.caption2).foregroundStyle(.secondary)
+                } maximumValueLabel: {
+                    Text("2×").font(.caption2).foregroundStyle(.secondary)
+                }
+                .labelsHidden()
+                Button("Reset to 1×") { rate = 1 }
+                    .buttonStyle(.link).font(.caption).disabled(rate == 1)
+            }
+            .padding(14).frame(width: 220)
+        }
     }
 }
 
@@ -296,9 +358,11 @@ private final class PlayerHostingView: NSHostingView<PlayerView> {
     }
     func hide() {
         cursorAnchor = nil
-        host.rootView = PlayerView(app: app, shown: false)
+        let staged = panel.isVisible && app.showPreview && !app.readingText.isEmpty
+        host.rootView = PlayerView(app: app, shown: false, exitPreview: (app.readingText, app.readingHighlight))
         hideTask?.cancel()
-        hideTask = Task { try? await Task.sleep(for: .milliseconds(220)); if !Task.isCancelled { panel.orderOut(nil) } }
+        let exit = (staged ? PlayerView.previewExitDuration : 0) + PlayerView.pillExitDuration + 0.05
+        hideTask = Task { try? await Task.sleep(for: .seconds(exit)); if !Task.isCancelled { panel.orderOut(nil) } }
     }
 }
 

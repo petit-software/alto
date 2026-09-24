@@ -21,8 +21,16 @@ public struct ModelDescriptor: Codable, Identifiable, Hashable, Sendable {
     public var downloadBytes: Int64 { files.reduce(0) { $0 + $1.bytes } }
     public var sizeLabel: String { ByteCountFormatter.string(fromByteCount: downloadBytes, countStyle: .file) }
     public var weight: ModelFile? { files.first { $0.path.hasSuffix(".safetensors") && !$0.path.contains("/") } }
-    public var voices: [ModelFile] { files.filter { $0.path.hasPrefix("voices/") }.sorted { $0.path < $1.path } }
+    public var isChatterboxNano: Bool { family == ModelValidation.chatterboxFamily }
+    public var inferencePath: String? { isChatterboxNano ? "alto-model.json" : weight?.path }
+    public var familyLabel: String { isChatterboxNano ? "Chatterbox Nano" : "Kokoro v1" }
+    public var chunkLimit: Int { isChatterboxNano ? 140 : 220 }
+    public var voices: [ModelFile] {
+        files.filter { isChatterboxNano ? $0.path == "tables/voice-default.safetensors" : $0.path.hasPrefix("voices/") }
+            .sorted { $0.path < $1.path }
+    }
     public static func voiceName(_ path: String) -> String {
+        if path == "tables/voice-default.safetensors" { return "Default · English" }
         let stem = URL(fileURLWithPath: path).deletingPathExtension().lastPathComponent
         let name = stem.split(separator: "_").dropFirst().joined(separator: " ").capitalized
         return name + (stem.hasPrefix("b") ? " · UK" : " · US")
@@ -31,6 +39,24 @@ public struct ModelDescriptor: Codable, Identifiable, Hashable, Sendable {
 
 public enum ModelValidation {
     public static let supportedFamily = "kokoro-v1"
+    public static let chatterboxFamily = "chatterbox-nano-coreml"
+    public static let supportedFamilies: Set<String> = [supportedFamily, chatterboxFamily]
+    public static let nanoModels = [
+        "T3Nano-Prefill-T512-M1536-fp16.mlmodelc",
+        "T3Nano-Decode-M1536-fp16-stateful.mlmodelc",
+        "FlowMean-N500-fp16.mlmodelc", "HiFT-T1000-fp16.mlmodelc"
+    ]
+    public static let nanoAuxFiles = ["tables/tables.safetensors", "tables/voice-default.safetensors",
+                                     "tokenizer/vocab.json", "tokenizer/merges.txt", "tokenizer/added_tokens.json"]
+    public static func validateNanoManifest(_ model: ModelDescriptor) throws {
+        let paths = Set(model.files.map(\.path))
+        let required = nanoAuxFiles + nanoModels.flatMap { [$0 + "/coremldata.bin", $0 + "/model.mil", $0 + "/weights/weight.bin"] }
+        guard model.isChatterboxNano, paths.count == model.files.count,
+              required.allSatisfy(paths.contains),
+              model.files.allSatisfy({ $0.bytes > 0 && $0.sha256?.count == 64 }) else {
+            throw AltoError("Incomplete Chatterbox Nano manifest. Use the model in Alto's catalog.")
+        }
+    }
     public static func containedURL(_ path: String, in root: URL) throws -> URL {
         guard !path.isEmpty, !path.hasPrefix("/"), !path.split(separator: "/").contains(".."),
               !path.contains("\\") else { throw AltoError("Invalid model file path.") }

@@ -105,7 +105,7 @@ public final class ModelStore {
         installed = ((try? FileManager.default.contentsOfDirectory(at: root, includingPropertiesForKeys: nil)) ?? []).compactMap { url in
             guard !url.lastPathComponent.hasPrefix("."), let data = try? Data(contentsOf: url.appendingPathComponent("alto-model.json")),
                   let model = try? JSONDecoder().decode(ModelDescriptor.self, from: data), model.id == url.lastPathComponent,
-                  model.family == ModelValidation.supportedFamily else { return nil }
+                  ModelValidation.supportedFamilies.contains(model.family) else { return nil }
             return model
         }.sorted { $0.name < $1.name }
     }
@@ -125,8 +125,12 @@ public final class ModelStore {
     public func cancel(_ model: ModelDescriptor) { transfers[model.id]?.cancel() }
     public func cancelAll() { transfers.values.forEach { $0.cancel() } }
     private func install(_ model: ModelDescriptor) async throws {
-        guard model.family == ModelValidation.supportedFamily, model.weight != nil, !model.voices.isEmpty,
-              !schema.isEmpty else { throw AltoError("This model needs a runtime or resources Alto does not include.") }
+        if model.isChatterboxNano {
+            try ModelValidation.validateNanoManifest(model)
+        } else {
+            guard model.family == ModelValidation.supportedFamily, model.weight != nil, !model.voices.isEmpty,
+                  !schema.isEmpty else { throw AltoError("This model needs a runtime or resources Alto does not include.") }
+        }
         let staging = root.appendingPathComponent(".staging-" + model.id)
         try FileManager.default.createDirectory(at: staging, withIntermediateDirectories: true)
         let values = try root.resourceValues(forKeys: [.volumeAvailableCapacityForImportantUsageKey])
@@ -171,6 +175,11 @@ public final class ModelStore {
     private func validate(_ model: ModelDescriptor, in folder: URL) async throws {
         let schema = self.schema
         try await Task.detached {
+            if model.isChatterboxNano {
+                try ModelValidation.validateNanoManifest(model)
+                for file in model.files { try ModelValidation.verify(file, in: folder) }
+                return
+            }
             guard let weight = model.weight, !schema.isEmpty else { throw AltoError("Missing Kokoro weights or runtime schema.") }
             try ModelValidation.validateKokoro(try ModelValidation.containedURL(weight.path, in: folder), schema: schema)
             for voice in model.voices {
@@ -200,7 +209,7 @@ public final class ModelStore {
         let listed = try FileManager.default.contentsOfDirectory(at: source, includingPropertiesForKeys: [.fileSizeKey])
         let weights = isDirectory ? listed.filter { $0.pathExtension == "safetensors" } : [selection]
         guard weights.count == 1, weights[0].pathExtension == "safetensors" else {
-            throw AltoError("Choose one Kokoro safetensors weight file with a voices folder beside it. PyTorch, ONNX, Core ML, GGUF and quantized weights need another runtime.")
+            throw AltoError("Choose one Kokoro safetensors weight file with a voices folder beside it. For Chatterbox Nano, use Alto's model catalog. Other formats cannot be imported.")
         }
         let voicesFolder = source.appendingPathComponent("voices")
         let voices = ((try? FileManager.default.contentsOfDirectory(at: voicesFolder, includingPropertiesForKeys: nil)) ?? []).filter {
@@ -251,7 +260,7 @@ public final class ModelStore {
             let name = item["rfilename"] as? String ?? ""
             return !name.contains("/") && name.hasSuffix(".safetensors")
         }
-        guard weightFiles.count == 1 else { throw AltoError("Expected one Kokoro safetensors weight file. Sharded, quantized, PyTorch and other model families are not supported by the installed runtime.") }
+        guard weightFiles.count == 1 else { throw AltoError("Expected one Kokoro safetensors weight file. For Chatterbox Nano, use Alto's model catalog. Other formats cannot be imported.") }
         let selected = siblings.filter { item in
             let path = item["rfilename"] as? String ?? ""
             return path == weightFiles[0]["rfilename"] as? String || ["config.json", "README.md", "LICENSE", "LICENSE.txt"].contains(path)

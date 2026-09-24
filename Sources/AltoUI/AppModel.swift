@@ -101,7 +101,7 @@ final class AppModel {
         let defaults = preferences ?? .standard
         self.defaults = defaults
         self.models = modelStore ?? ModelStore()
-        self.speech = speechEngine ?? KokoroWorkerEngine()
+        self.speech = speechEngine ?? NativeSpeechWorkerEngine()
         preferredID = defaults.string(forKey: "model") ?? "kokoro-standard"
         voicePath = defaults.string(forKey: "voice") ?? "voices/af_heart.safetensors"
         rate = defaults.object(forKey: "rate") == nil ? 1 : min(2, max(0.5, defaults.double(forKey: "rate")))
@@ -214,18 +214,18 @@ final class AppModel {
             guard let model = selectedModel else {
                 throw AltoError("Download and select a voice model in Models to start listening.")
             }
-            let chunks = TextChunker.split(text)
+            let chunks = TextChunker.split(text, limit: model.chunkLimit)
             if isTextReaderOpen { draftText = source }
             start(chunks, model: model, previewText: text)
         } catch { reportReadingError(error.localizedDescription) }
     }
     private func reportReadingError(_ text: String) {
-        stop(); hidePlayer?(); message = text
+        hidePlayer?(); stop(); message = text
         if !isTextReaderOpen { showWindow?() }
     }
     private func start(_ chunks: [String], model: ModelDescriptor, paused: Bool = false, previewText: String? = nil) {
         stop(keepWorker: generation == .idle || generation == .capturing, keepPreview: hasReading)
-        guard let weight = model.weight, let voice = model.voices.first(where: { $0.path == voicePath }) ?? model.voices.first else { return }
+        guard let inferencePath = model.inferencePath, let voice = model.voices.first(where: { $0.path == voicePath }) ?? model.voices.first else { return }
         voicePath = voice.path
         sentences = chunks; totalSentences = chunks.count; currentSentence = 0
         readingText = previewText ?? chunks.joined(separator: "\n\n")
@@ -251,7 +251,7 @@ final class AppModel {
                     }
                     let output: URL
                     do {
-                        output = try await speech.generate(model: models.folder(model).appendingPathComponent(weight.path),
+                        output = try await speech.generate(model: models.folder(model).appendingPathComponent(inferencePath),
                             voice: models.folder(model).appendingPathComponent(voice.path), text: pending[index])
                     } catch {
                         if error.localizedDescription == "tooManyTokens", pending[index].count > 8 {
@@ -288,9 +288,11 @@ final class AppModel {
     private func finishIfDrained() {
         guard generation == .finished, audio.queuedCount == 0 else { return }
         generation = .idle; playback = .stopped
+        // Hide before clearing so the player can keep the preview on screen
+        // while it rolls away.
+        hidePlayer?()
         sentences = []; totalSentences = 0; currentSentence = 0
         readingText = ""; clearFollow()
-        hidePlayer?()
         cleanupTask = Task { try? await Task.sleep(for: .seconds(60)); if !Task.isCancelled { speech.unload() } }
     }
     func pause() { playback = .paused; audio.pause() }
@@ -306,12 +308,12 @@ final class AppModel {
     }
     func selectModel(_ model: ModelDescriptor) {
         stop()
-        guard let weight = model.weight, let voice = model.voices.first else { return }
+        guard let inferencePath = model.inferencePath, let voice = model.voices.first else { return }
         generation = .loading; hidePlayer?()
         let token = session
         task = Task {
             do {
-                let output = try await speech.generate(model: models.folder(model).appendingPathComponent(weight.path),
+                let output = try await speech.generate(model: models.folder(model).appendingPathComponent(inferencePath),
                     voice: models.folder(model).appendingPathComponent(voice.path), text: "Ready to read.")
                 try? FileManager.default.removeItem(at: output)
                 guard session == token, !Task.isCancelled else { return }
@@ -346,7 +348,7 @@ final class AppModel {
     }
     func shutdown() { stop(); captureTask?.cancel(); models.cancelAll(); hotkey.unregister() }
     func openTextReader() {
-        if !isTextReaderOpen { stop(); hidePlayer?(); isTextReaderOpen = true }
+        if !isTextReaderOpen { hidePlayer?(); stop(); isTextReaderOpen = true }
         presentTextReader?()
     }
     func playDraft() {
@@ -354,7 +356,7 @@ final class AppModel {
         else if canReadDraft { read(draftText) }
     }
     func stopAndDismiss() {
-        stop(); hidePlayer?()
+        hidePlayer?(); stop()
         if isTextReaderOpen {
             isTextReaderOpen = false; draftText = ""; closeTextReader?()
         }

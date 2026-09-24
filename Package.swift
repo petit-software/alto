@@ -6,6 +6,7 @@ let package = Package(
     platforms: [.macOS(.v15)],
     products: [
         .library(name: "AltoCore", targets: ["AltoCore"]),
+        .library(name: "AltoChatterbox", targets: ["AltoChatterbox"]),
         .library(name: "AltoUI", targets: ["AltoUI"]),
         .executable(name: "Alto", targets: ["Alto"]),
         .executable(name: "AltoSpeechWorker", targets: ["AltoSpeechWorker"])
@@ -16,13 +17,15 @@ let package = Package(
     ],
     targets: [
         .target(name: "AltoCore"),
+        .target(name: "AltoChatterbox", dependencies: ["AltoCore"]),
         .target(name: "AltoUI", dependencies: ["AltoCore"]),
         .executableTarget(name: "Alto", dependencies: ["AltoUI"]),
         .executableTarget(name: "AltoSpeechWorker", dependencies: [
-            "AltoCore", .product(name: "KokoroSwift", package: "kokoro-ios"),
+            "AltoCore", "AltoChatterbox", .product(name: "KokoroSwift", package: "kokoro-ios"),
             .product(name: "MLX", package: "mlx-swift")
         ]),
         .testTarget(name: "AltoCoreTests", dependencies: ["AltoCore"]),
+        .testTarget(name: "AltoChatterboxTests", dependencies: ["AltoChatterbox"]),
         .testTarget(name: "AltoUITests", dependencies: ["AltoUI", "AltoCore"])
     ],
     swiftLanguageModes: [.v5]

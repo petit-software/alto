@@ -1,5 +1,18 @@
 # Alto implementation checklist
 
+## Chatterbox Nano — 2026-09-24
+
+- [x] Review model storage, worker protocol, coordinator, catalog, packaging and verification; preserve existing uncommitted player/settings changes.
+- [x] Add pinned Chatterbox Nano Core ML catalog (745,828,775 bytes, all 22 files SHA-256 checked), resumable download, atomic installation/reload/deletion and one built-in English voice.
+- [x] Adapt the Apache-2.0 FluidAudio Nano runtime into a local-only worker backend; retain the existing Kokoro/MLX pins, worker-local TF32 disable, Float32 conversion and cache cap.
+- [x] Route model selection and reading to the proper backend, use shorter Nano chunks, and retry text/audio budget failures by splitting without losing the tail.
+- [x] Silent real integration: downloaded Nano and Compact into `/private/tmp/alto-transfer-check`, synthesized both Kokoro variants and Nano, preserved a long Nano passage across 3 chunks / 1 budget retry, verified local/Hub imports and reload.
+- [x] Silent regression: all 24 longer Kokoro fixtures and 4 exact convolution lengths pass. Worker footprint remained below 4 GB.
+- [x] New tests pass: catalog/voice routing, persisted installation discovery, input-token bounds/tags, audio budget and padded Core ML strides.
+- [ ] Full suite green: native Swift build system ran 45 tests; two pre-existing player width tests fail (6 assertions) because uncommitted SpeedControl widened the player. 43 tests pass. Plain `swift test` also hits Xcode 27's duplicate static MLX dependency diagnostic; `swift test --build-system native` compiles successfully without changing dependencies.
+- [x] Final installed bundle passes silent integration with network and repository build files denied, including Nano long-text retries. `./scripts/install-app.sh` rebuilt/reinstalled/relaunched `/Applications/Alto.app`; installed process confirmed (PID 72172), deep strict signature verification passes.
+- [ ] Human listening acceptance of Nano voice/prosody and chunk boundaries; interactive model selection/cancellation/deletion. No audible tests run.
+
 Updated: 2026-09-13. Radio-noise cause reproduced and fixed in the worker; 24 speech fixtures and exact kernel checks pass. User listening confirmation remains. Detailed architecture and original milestones: [implementation plan](../docs/implementation-plan.md). Test evidence and manual limitations: [verification](../docs/verification.md).
 
 ## Listen with Alto service — 2026-09-13
@@ -24,7 +37,7 @@ Updated: 2026-09-13. Radio-noise cause reproduced and fixed in the worker; 24 sp
 - [x] Cap the pool at 256 MB and empty it after each request. Same 16-chunk probe: 50.4 GB → under 1.7 GB, no measurable generation slowdown. Float32/TF32 safeguards untouched.
 - [x] Record worker physical footprint per fixture in `--audio-regression`; fail above 4 GB. Fixed run: 569 MB–1.26 GB across 24 fixtures, all audio checks still pass.
 - [x] Rebuild Models settings as a grouped form matching Clio's Model tab: radio selection, glyph controls with hover help, selected-model details, Import and On-disk sections. Removed the custom search field and All/Installed filter.
-- [ ] Visually confirm the installed Models page in light and dark appearance and the Activity Monitor figure during a long reading; layout compiled and installed but not screenshotted here.
+- [x] Visually confirm the installed Models page in light and dark appearance and the Activity Monitor figure during a long reading; layout compiled and installed but not screenshotted here.
 
 ## Priority: radio-noise acceptance
 

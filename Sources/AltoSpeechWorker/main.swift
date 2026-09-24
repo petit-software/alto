@@ -3,6 +3,7 @@ import AVFoundation
 import KokoroSwift
 import MLX
 import AltoCore
+import AltoChatterbox
 
 // Keep ordinary F32 GPU math; the pinned MLX NAX kernel overflows on long
 // convolutions (mlx#3092). Misaki also pins MLX, so an isolated version bump
@@ -40,6 +41,7 @@ func reportMemory(_ label: String) {
 // worker idles between chunks, so the pool is also emptied after each request.
 MLX.Memory.cacheLimit = 256 * 1024 * 1024
 var engine: KokoroTTS?
+var nano: ChatterboxNanoRuntime?
 var loadedPath: String?
 let scratch = CommandLine.arguments.count > 1 ? URL(fileURLWithPath: CommandLine.arguments[1]) : FileManager.default.temporaryDirectory
 let prepared = scratch.appendingPathComponent("alto-prepared-" + UUID().uuidString + ".safetensors")
@@ -50,32 +52,50 @@ while let line = readLine() {
     let start = Date()
     var response = SpeechResponse()
     do {
-        if loadedPath != request.model {
-            engine = nil
-            let original = URL(fileURLWithPath: request.model)
-            let header = try ModelValidation.tensors(original)
-            if header.contains(where: { ModelValidation.canonicalKey($0.key) != $0.key || ($0.value["dtype"] as? String) != "F32" }) {
-                let arrays = try MLX.loadArrays(url: original)
-                var canonical: [String: MLXArray] = [:]
-                for (key, value) in arrays { canonical[ModelValidation.canonicalKey(key)] = value.asType(.float32) }
-                // The compact export omits ALBERT's unused pooled output. Kokoro
-                // consumes only the sequence output, but this loader constructs both.
-                if canonical["bert.pooler.weight"] == nil { canonical["bert.pooler.weight"] = MLXArray.zeros([768, 768]) }
-                if canonical["bert.pooler.bias"] == nil { canonical["bert.pooler.bias"] = MLXArray.zeros([768]) }
-                try MLX.save(arrays: canonical, url: prepared)
-                engine = KokoroTTS(modelPath: prepared)
-            } else {
-                engine = KokoroTTS(modelPath: original)
+        let samples: [Float]
+        if URL(fileURLWithPath: request.model).lastPathComponent == "alto-model.json" {
+            if loadedPath != request.model {
+                engine = nil
+                nano = nil
+                loadedPath = nil
+                MLX.Memory.clearCache()
+                let runtime = ChatterboxNanoRuntime()
+                try await runtime.load(manifest: URL(fileURLWithPath: request.model))
+                nano = runtime
+                loadedPath = request.model
             }
-            loadedPath = request.model
+            samples = try await nano!.generate(text: request.text)
+        } else {
+            if loadedPath != request.model {
+                engine = nil
+                nano = nil
+                loadedPath = nil
+                let original = URL(fileURLWithPath: request.model)
+                let header = try ModelValidation.tensors(original)
+                if header.contains(where: { ModelValidation.canonicalKey($0.key) != $0.key || ($0.value["dtype"] as? String) != "F32" }) {
+                    let arrays = try MLX.loadArrays(url: original)
+                    var canonical: [String: MLXArray] = [:]
+                    for (key, value) in arrays { canonical[ModelValidation.canonicalKey(key)] = value.asType(.float32) }
+                    // The compact export omits ALBERT's unused pooled output. Kokoro
+                    // consumes only the sequence output, but this loader constructs both.
+                    if canonical["bert.pooler.weight"] == nil { canonical["bert.pooler.weight"] = MLXArray.zeros([768, 768]) }
+                    if canonical["bert.pooler.bias"] == nil { canonical["bert.pooler.bias"] = MLXArray.zeros([768]) }
+                    try MLX.save(arrays: canonical, url: prepared)
+                    engine = KokoroTTS(modelPath: prepared)
+                } else {
+                    engine = KokoroTTS(modelPath: original)
+                }
+                loadedPath = request.model
+            }
+            let voiceURL = URL(fileURLWithPath: request.voice)
+            let arrays = try MLX.loadArrays(url: voiceURL)
+            guard let voice = arrays.values.first, voice.shape == [510, 1, 256] else {
+                throw AltoError("Voice must contain a 510 × 1 × 256 Kokoro embedding.")
+            }
+            let language: Language = voiceURL.lastPathComponent.hasPrefix("b") ? .enGB : .enUS
+            let (kokoroSamples, _) = try engine!.generateAudio(voice: voice.asType(.float32), language: language, text: request.text)
+            samples = kokoroSamples
         }
-        let voiceURL = URL(fileURLWithPath: request.voice)
-        let arrays = try MLX.loadArrays(url: voiceURL)
-        guard let voice = arrays.values.first, voice.shape == [510, 1, 256] else {
-            throw AltoError("Voice must contain a 510 × 1 × 256 Kokoro embedding.")
-        }
-        let language: Language = voiceURL.lastPathComponent.hasPrefix("b") ? .enGB : .enUS
-        let (samples, _) = try engine!.generateAudio(voice: voice.asType(.float32), language: language, text: request.text)
         guard !samples.isEmpty, samples.count < 2_880_000, samples.allSatisfy({ $0.isFinite }) else {
             throw AltoError("The model returned invalid or oversized audio.")
         }
@@ -88,6 +108,8 @@ while let line = readLine() {
         let file = try AVAudioFile(forWriting: URL(fileURLWithPath: request.output), settings: format.settings)
         try file.write(from: buffer)
         response = SpeechResponse(samples: samples.count, seconds: Date().timeIntervalSince(start))
+    } catch ChatterboxError.textTooLong, ChatterboxError.generationTooLong {
+        response.error = "tooManyTokens"
     } catch KokoroTTS.KokoroTTSError.tooManyTokens {
         response.error = "tooManyTokens"
     } catch {

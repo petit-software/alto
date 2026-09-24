@@ -1,6 +1,6 @@
 # Alto
 
-A native macOS menu-bar app that reads text aloud with local Kokoro AI voices.
+A native macOS menu-bar app that reads text aloud with local AI voices.
 Works offline after downloading a model. No account, Python, or cloud speech service.
 
 Requires **Apple Silicon and macOS 15+**. English US/UK only for now.
@@ -23,7 +23,8 @@ in any of three ways:
 The floating glass player has play/pause and X to stop. Voice, speed, player
 position, size and glass appearance live in Settings.
 
-Models: Kokoro (~329 MB) and Kokoro Compact (~164 MB), plus compatible Kokoro v1
+Models: Kokoro (~329 MB), Kokoro Compact (~164 MB), and
+[Chatterbox Nano](docs/chatterbox-nano.md) (~746 MB, beta, one English voice), plus compatible Kokoro v1
 safetensors imported from local files or public Hugging Face repositories.
 Markup and emojis are skipped. No reading history, no telemetry.
 

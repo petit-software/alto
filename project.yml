@@ -82,6 +82,8 @@ targets:
     dependencies:
       - package: AltoPackage
         product: AltoCore
+      - package: AltoPackage
+        product: AltoChatterbox
       - package: Kokoro
         product: KokoroSwift
       - package: MLX

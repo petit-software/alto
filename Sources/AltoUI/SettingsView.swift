@@ -109,7 +109,7 @@ struct SettingsView: View {
             Form {
                 Section("Alto") {
                     Text("Local text to speech. No account or saved text history.")
-                    Text("English (US/UK) · Kokoro").foregroundStyle(.secondary)
+                    Text("English · Kokoro and Chatterbox Nano").foregroundStyle(.secondary)
                     Button("Show Model Storage") { NSWorkspace.shared.open(AltoPaths.models) }
                     Button("Third-party notices") {
                         if let url = Bundle.main.url(forResource: "THIRD_PARTY_NOTICES", withExtension: "md") { NSWorkspace.shared.open(url) }
